@@ -215,6 +215,8 @@ impl Board {
             panic!("expected space after en passant square")
         }
 
+
+        // technically we allow for fifty_move values greater than 50, but less than 100.
         board.history[0].fifty_move = {
             let digit_1: u8 = fen_chars.next().ok_or("incomplete FEN string").unwrap().to_digit(10).unwrap() as u8;
             let possibly_digit_2 = fen_chars.next().ok_or("incomplete FEN string").unwrap();
