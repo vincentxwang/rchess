@@ -73,6 +73,7 @@ pub enum Square {
 }
 
 impl Square {
+    // Converts integer to Square.
     pub fn from_int(num: usize) -> Square {
         match num {
             0 => Square::A1,  1 => Square::B1,  2 => Square::C1,  3 => Square::D1,
@@ -95,6 +96,7 @@ impl Square {
         }
     }
 
+    // Converts string representation to square.
     pub fn from_str(str: String) -> Square {
         let mut str_chars = str.chars();
         let col = match str_chars.next().ok_or("incomplete file while converting string to square").unwrap().to_ascii_uppercase() {
