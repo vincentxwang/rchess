@@ -1,9 +1,7 @@
 #[cfg(test)]
 mod tests {
 
-    use crate::core::*;
     use crate::core::constants::KNIGHT_START;
-    use crate::core::structs::Color as Color;
     use crate::game::bitboard::Bitboard as Bitboard;
     use crate::core::structs::Square as Square;
 

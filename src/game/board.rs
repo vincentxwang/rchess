@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use crate::game::bitboard::Bitboard as Bitboard;
 use crate::core::constants::*;
 use crate::core::structs::Color as Color;

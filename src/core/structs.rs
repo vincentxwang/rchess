@@ -4,6 +4,13 @@ pub enum Color {
     Black = 1,
 }
 
+impl PartialEq for Color {
+    fn eq(&self, other: &Self) -> bool {
+        *self as usize == *other as usize
+    }
+}
+
+
 #[derive(Copy, Clone, Debug)]
 pub enum Square {
     A1 = 0,
@@ -118,5 +125,25 @@ impl Square {
             .unwrap();
         // We subtract one from row because rows in chess start counting from 1.
         Square::from_int((row as usize - 1) * 8 + col)
+    }
+
+    // Returns an integer that represents the file (vertical).
+    pub fn get_file(&self) -> usize {
+        *self as usize % 8
+    }
+
+    // Returns an integer that represents the rank (horizontal).
+    pub fn get_rank(&self) -> usize {
+        *self as usize / 8 + 1
+    }
+    // Gets the Manhattan metric between two squares!
+    pub fn distance(sq1: Square, sq2: Square) -> usize {
+        ((sq1.get_rank() as i32 - sq2.get_rank() as i32).abs() + (sq2.get_file() as i32 - sq1.get_file() as i32).abs()) as usize
+    }
+}
+
+impl PartialEq for Square {
+    fn eq(&self, other: &Self) -> bool {
+        *self as usize == *other as usize
     }
 }
