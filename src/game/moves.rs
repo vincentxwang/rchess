@@ -80,11 +80,67 @@ impl Move {
         }
     }
     
+    // generate a vector of all possible knight moves from a single square. a move is just anything that is possible on the board. we would still need to check
+    // (i) legality, (ii) destination square is not moved on.
+    pub fn generate_all_knight_moves(origin: &Square, color: &Color) -> Vec<Move> {
+        let mut knight_squares: Vec<Square> = Vec::new();
 
-    // generate a vector of all possible knight moves from a single square
-    /* 
-    pub fn generate_knight_moves(sq: &Square) -> Vec<Move> {
+        let file = origin.get_file();
+        let rank = origin.get_rank();
+
+        if file >= 2 && rank <= 6 {
+            knight_squares.push(Square::from_distance(&origin, 2, 1, false, true));
+        } 
+
+        if file >= 2 && rank >= 1 {
+            knight_squares.push(Square::from_distance(&origin, 2, 1, false, false));
+        }
+
+        if file >= 1 && rank >= 2 {
+            knight_squares.push(Square::from_distance(&origin, 1, 2, false, false));
+        }
+
+        if file <= 6 && rank >= 2 {
+            knight_squares.push(Square::from_distance(&origin, 1, 2, true, false));
+        }
+
+        if file <= 5 && rank >= 1 {
+            knight_squares.push(Square::from_distance(&origin, 2, 1, true, false));
+        }
+
+        if file <= 5 && rank <= 6 {
+            knight_squares.push(Square::from_distance(&origin, 2, 1, true, true));
+        }
+
+        if file <= 6 && rank <= 5 {
+            knight_squares.push(Square::from_distance(&origin, 1, 2, true, true));
+        }
+
+        if file >= 1 && rank <= 5 {
+            knight_squares.push(Square::from_distance(&origin, 1, 2, false, true));
+        }
+
+        let mut knight_moves = Vec::new();
+
+        while knight_squares.len() != 0 {
+            knight_moves.push( Move {
+                color: *color,
+                origin: *origin,
+                piece: Piece::Knight,
+                destination: knight_squares.pop().unwrap(),
+                promote_type: None,
+                is_castle: false,
+            }
+            );
+        }
+        knight_moves
+    }
+
+    /*
+    pub fn generate_all_bishop_moves(board: &Board, origin: &Square, color: &Color) -> Vec<Move> {
         
     }
     */
+
+
 }

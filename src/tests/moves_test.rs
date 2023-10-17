@@ -19,4 +19,9 @@ mod tests {
             assert_eq!(pawna2_a4.promote_type, None);
             assert_eq!(pawna2_a4.piece, Piece::Pawn);
     }
+
+    #[test]
+    fn test_generate_all_knight_moves() {
+        assert_eq!(Move::generate_all_knight_moves(&Square::A2, &Color::White).len(), 4);
+    }
 }

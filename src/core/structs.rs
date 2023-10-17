@@ -99,7 +99,7 @@ impl Square {
             52 => Square::E7, 53 => Square::F7, 54 => Square::G7, 55 => Square::H7,
             56 => Square::A8, 57 => Square::B8, 58 => Square::C8, 59 => Square::D8,
             60 => Square::E8, 61 => Square::F8, 62 => Square::G8, 63 => Square::H8,
-            _ => panic!("tried to convert some invalid value to Square"),
+            _ => panic!("tried to convert some invalid value: {} to Square", num),
         }
     }
 
@@ -140,6 +140,27 @@ impl Square {
     pub fn distance(sq1: Square, sq2: Square) -> usize {
         ((sq1.get_rank() as i32 - sq2.get_rank() as i32).abs() + (sq2.get_file() as i32 - sq1.get_file() as i32).abs()) as usize
     }
+
+    // Gets square that is rank away and file away from another square.
+    // Note that sign_x, sign_y take on false if the respective coordinate is supposed to be negative, and true if the respective coordinate 
+    // is supposed to be positive. I made it this way because I couldn't add an isize to a usize.
+    pub fn from_distance(sq: &Square, rank_x: usize, file_y: usize, sign_x: bool, sign_y: bool) -> Square {
+        let mut num = *sq as usize;
+        if sign_x {
+            num += rank_x * 8;
+        } else {
+            num -= rank_x * 8;
+        }
+
+        if sign_y {
+            num += file_y;
+        } else {
+            num -= file_y;
+        }
+
+        Square::from_int(num)
+    }
+    
 }
 
 impl PartialEq for Square {
