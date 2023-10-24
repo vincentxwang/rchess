@@ -11,8 +11,8 @@ pub struct Board {
     pub sides: [Bitboard; PLAYER_COUNT],
     // Bitboards representing piece types. [Pawn, Knight, Bishop, Rook, Queen, King].
     pub pieces: [Bitboard; PIECETYPE_COUNT],
-    // Keeps a history of BoardData.
-    pub history: Vec<BoardData> 
+    // Keeps a meta of BoardData.
+    pub meta: BoardData
     // pub moves: Vec<Option<(Move, Option<Piece>)>>
 }
 
@@ -42,7 +42,7 @@ impl Board {
                 Bitboard::new(QUEEN_START),
                 Bitboard::new(KING_START),
             ],
-            history: vec![BoardData {
+            meta: BoardData {
                 player: Color::White,
                 castle_rights: CastleRights {
                     white_kingside: true,
@@ -53,7 +53,7 @@ impl Board {
                 fifty_move: 0,
                 en_passant_square: None,
                 full_moves: 0,
-            }]
+            }
         }
     }
 
@@ -71,7 +71,7 @@ impl Board {
                 Bitboard::empty(),
                 Bitboard::empty(),
             ],
-            history: vec![BoardData {
+            meta: BoardData {
                 player: Color::White,
                 castle_rights: CastleRights {
                     white_kingside: false,
@@ -82,7 +82,7 @@ impl Board {
                 fifty_move: 0,
                 en_passant_square: None,
                 full_moves: 0,
-            }]
+            }
         }
     }
 
@@ -111,7 +111,7 @@ impl Board {
                 Bitboard::empty(),
                 Bitboard::empty(),
             ],
-            history: vec![BoardData {
+            meta: BoardData {
                 player: Color::White,
                 castle_rights: CastleRights {
                     white_kingside: false,
@@ -122,7 +122,7 @@ impl Board {
                 fifty_move: 0,
                 en_passant_square: None,
                 full_moves: 0,
-            }]
+            }
         };
 
         // Chars<'_> represents an iterator!
@@ -170,7 +170,7 @@ impl Board {
             panic!("expected space after board array")
         }
 
-        board.history[0].player = match fen_chars.next().ok_or("incomplete FEN string") {
+        board.meta.player = match fen_chars.next().ok_or("incomplete FEN string") {
             Ok('w') => Color::White,
             Ok('b') => Color::Black,
             _ => panic!("invalid player!")
@@ -184,10 +184,10 @@ impl Board {
 
         while chr != ' ' {
             match chr {
-                'q' => board.history[0].castle_rights.black_queenside = true,
-                'Q' => board.history[0].castle_rights.white_queenside = true,
-                'k' => board.history[0].castle_rights.black_kingside = true,
-                'K' => board.history[0].castle_rights.white_kingside = true,
+                'q' => board.meta.castle_rights.black_queenside = true,
+                'Q' => board.meta.castle_rights.white_queenside = true,
+                'k' => board.meta.castle_rights.black_kingside = true,
+                'K' => board.meta.castle_rights.white_kingside = true,
                 '-' => (),
                 _ => panic!("invalid castling characters")
             }
@@ -196,7 +196,7 @@ impl Board {
 
         // we do not need to check for a space because the code above consumes it
 
-        board.history[0].en_passant_square = {
+        board.meta.en_passant_square = {
             let ep_file = fen_chars
                 .next()
                 .ok_or("reached end while parsing en passant file");
@@ -215,7 +215,7 @@ impl Board {
 
 
         // technically we allow for fifty_move values greater than 50, but less than 100.
-        board.history[0].fifty_move = {
+        board.meta.fifty_move = {
             let digit_1: u8 = fen_chars.next().ok_or("incomplete FEN string").unwrap().to_digit(10).unwrap() as u8;
             let possibly_digit_2 = fen_chars.next().ok_or("incomplete FEN string").unwrap();
     
@@ -231,7 +231,7 @@ impl Board {
             }
         };
 
-        board.history[0].full_moves = {
+        board.meta.full_moves = {
             let digit_1: u8 = fen_chars.next().ok_or("incomplete FEN string").unwrap().to_digit(10).unwrap() as u8;
             let possibly_digit_2 = fen_chars.next();
     
