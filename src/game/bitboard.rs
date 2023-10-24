@@ -81,6 +81,22 @@ impl Bitboard {
     pub fn find_lsb(&self) -> Square {
         Square::from_int(self.0.trailing_zeros() as usize)
     }
+
+    // Prints a nice 8x8 array of a bitboard. Used for debugging.
+    pub fn print_bitboard(&self) {
+        println!("--------- Printing Bitboard ----------");
+        for rank in (0..8).rev() {
+            for file in 0..8 {
+                if self.is_piece(&Square::from_int(8 * rank + file)) {
+                    print!("1 ");
+                } else {
+                    print!("0 ");
+                }
+            }
+            println!("");
+        }
+        println!("----------- End of Print ------------");
+    }
 }
 
 impl PartialEq for Bitboard {
