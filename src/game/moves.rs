@@ -82,7 +82,8 @@ impl Move {
     
     // generate a vector of all possible knight moves from a single square. a move is just anything that is possible on the board. we would still need to check
     // (i) legality, (ii) destination square is not moved on.
-    pub fn generate_all_knight_moves(origin: &Square, color: &Color) -> Vec<Move> {
+    pub fn generate_all_knight_moves(board: &Board, origin: &Square) -> Vec<Move> {
+        let mover = board.meta.player;
         let mut knight_squares: Vec<Square> = Vec::new();
 
         let file = origin.get_file();
@@ -123,24 +124,44 @@ impl Move {
         let mut knight_moves = Vec::new();
 
         while knight_squares.len() != 0 {
-            knight_moves.push( Move {
-                color: *color,
-                origin: *origin,
-                piece: Piece::Knight,
-                destination: knight_squares.pop().unwrap(),
-                promote_type: None,
-                is_castle: false,
+            let knight_square = knight_squares.pop().unwrap();
+            if board.sides[mover as usize].is_piece(&knight_square) {
+                knight_moves.push( Move {
+                    color: mover,
+                    origin: *origin,
+                    piece: Piece::Knight,
+                    destination: knight_square,
+                    promote_type: None,
+                    is_castle: false,
+                });
             }
-            );
         }
         knight_moves
     }
 
-    /*
-    pub fn generate_all_bishop_moves(board: &Board, origin: &Square, color: &Color) -> Vec<Move> {
-        
+    // generate_all_bishop_moves does NOT check for legality.
+    pub fn generate_all_bishop_moves(board: &Board, origin: &Square) -> Vec<Move> {
+        let mover = board.meta.player;
+        let mut bishop_squares: Vec<Square> = Vec::new();
+
+ 
+        let mut bishop_moves: Vec<Move> = Vec::new();
+
+        while bishop_squares.len() != 0 {
+            bishop_moves.push( Move {
+                color: mover,
+                origin: *origin,
+                piece: Piece::Bishop,
+                destination: bishop_squares.pop().unwrap(),
+                promote_type: None,
+                is_castle: false,
+            });
+        }
+        bishop_moves
     }
-    */
 
-
+    /*
+    pub fn get_moves<>
+     */
+    
 }
