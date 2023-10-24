@@ -173,3 +173,15 @@ impl PartialEq for Square {
         *self as usize == *other as usize
     }
 }
+
+#[derive(Copy, Clone, Debug)]
+pub enum Direction {
+    East = 0,
+    Northeast = 1,
+    North = 2,
+    Northwest = 3,
+    West = 4,
+    Southwest = 5,
+    South = 6,
+    Southeast = 7,
+}

@@ -4,14 +4,16 @@ use crate::game::bitboard::Bitboard as Bitboard;
 // Generates an array of Bitboards. Each bitboard represents a ray attack from a square. 
 // A ray attack is all possible squares to move on an empty board in a certain direction.
 lazy_static! {
-    pub static ref NORTH_RAY_ATTACKS: [Bitboard; 64] = compute_north_ray_attacks();
-    pub static ref SOUTH_RAY_ATTACKS: [Bitboard; 64] = compute_south_ray_attacks();
-    pub static ref NORTHEAST_RAY_ATTACKS: [Bitboard; 64] = compute_northeast_ray_attacks();
-    pub static ref NORTHWEST_RAY_ATTACKS: [Bitboard; 64] = compute_northwest_ray_attacks();
-    pub static ref WEST_RAY_ATTACKS: [Bitboard; 64] = compute_west_ray_attacks();
-    pub static ref EAST_RAY_ATTACKS: [Bitboard; 64] = compute_east_ray_attacks();
-    pub static ref SOUTHWEST_RAY_ATTACKS: [Bitboard; 64] = compute_southwest_ray_attacks();
-    pub static ref SOUTHEAST_RAY_ATTACKS: [Bitboard; 64] = compute_southeast_ray_attacks();
+    pub static ref RAY_ATTACKS: [[Bitboard; 64]; 8] = [
+        compute_east_ray_attacks(), 
+        compute_northeast_ray_attacks(),
+        compute_north_ray_attacks(),
+        compute_northwest_ray_attacks(),
+        compute_west_ray_attacks(),
+        compute_southwest_ray_attacks(),
+        compute_south_ray_attacks(),
+        compute_southeast_ray_attacks(),
+    ];
 }
 
 fn compute_north_ray_attacks() -> [Bitboard; 64] {
