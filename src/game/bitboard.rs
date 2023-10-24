@@ -42,6 +42,11 @@ impl Bitboard {
         self.0 & 1 << *square as u8 != 0
     }
 
+    // Sets a bit to zero.
+    pub fn set_zero(&mut self, square: &Square) {
+        self.0 &= !(1 << *square as u8);
+    }
+
     // Toggles a bit.
     pub fn toggle(&mut self, square: &Square) {
         self.0 ^= 1 << *square as u8
@@ -63,6 +68,15 @@ impl Bitboard {
         self.toggle(&Square::from_int(self.0.trailing_zeros() as usize))       
     }
     
+    // Scans for the least significant bit on "intersection" bitboard and removes all bits after the least significant bit on self.
+    pub fn bitscan_forward(&mut self, intersection: &Bitboard) {
+        if intersection.0.leading_zeros() != 64 {
+            let lsb = intersection.0.trailing_zeros() as usize;
+            for i in lsb..64 {
+
+            }
+        }
+    }
 
 
 }

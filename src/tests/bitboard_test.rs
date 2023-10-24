@@ -27,6 +27,13 @@ mod tests {
     }
 
     #[test]
+    fn test_set_zero() {
+        let mut test1 = Bitboard::new(0b_10000000_00000000_00000000_00000000_00000000_00000000_00000000_00000010);
+        test1.set_zero(&Square::H8);
+        assert_eq!(test1.to_integer(), 0b_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000010)
+    }
+    
+    #[test]
     fn test_toggle() {
         let mut test1 = Bitboard::empty();
         test1.toggle(&Square::B1);
