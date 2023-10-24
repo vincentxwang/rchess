@@ -103,6 +103,11 @@ impl Square {
         }
     }
 
+    // Converts rank, file to Square.
+    pub fn from_rankfile(rank: usize, file: usize) -> Square {
+        Square::from_int(rank * 8 + file)
+    }
+
     // Converts string representation to square.
     pub fn from_str(str: String) -> Square {
         let mut str_chars = str.chars();
