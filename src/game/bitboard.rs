@@ -27,9 +27,42 @@ impl Bitboard {
         println!("inserting {:?} to make {}", *square as u8, self.0)
     }
 
+    // Shifts bitboard left by an integer.
+    pub fn shift_left(&mut self, x: usize) {
+        self.0 <<= x;
+    }
+
+    // Shifts bitboard right by an integer.
+    pub fn shift_right(&mut self, x: usize) {
+        self.0 >>= x;
+    }
+
     // Determines if there is a 1-bit at a given square.
     pub fn is_piece(&self, square: &Square) -> bool {
         self.0 & 1 << *square as u8 != 0
     }
+
+    // Toggles a bit.
+    pub fn toggle(&mut self, square: &Square) {
+        self.0 ^= 1 << *square as u8
+    }
+
+    // Toggles most significant 1 to a 0.
+    pub fn toggle_msb(&mut self) {
+        if self.0.leading_zeros() == 64 {
+            panic!("tried to toggle most significant bit, but bitboard is empty!")
+        }
+        self.toggle(&Square::from_int(63 - self.0.leading_zeros() as usize))
+    }
+
+    // Toggles most significant 1 to a 0.
+    pub fn toggle_lsb(&mut self) {
+        if self.0.leading_zeros() == 64 {
+            panic!("tried to toggle least significant bit, but bitboard is empty!")
+        }
+        self.toggle(&Square::from_int(self.0.trailing_zeros() as usize))       
+    }
+    
+
 
 }

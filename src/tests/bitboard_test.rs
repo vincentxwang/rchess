@@ -25,5 +25,25 @@ mod tests {
         assert_eq!(true, test2.is_piece(&Square::B1));
         assert_eq!(false, test2.is_piece(&Square::A2));
     }
+
+    #[test]
+    fn test_toggle() {
+        let mut test1 = Bitboard::empty();
+        test1.toggle(&Square::B1);
+        assert_eq!(test1.to_integer(), 0b_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000010);
+    }
+
+    #[test]
+    fn test_toggle_msb() {
+        let mut test1 = Bitboard::new(0b_00000000_00000000_00010000_00000000_00000000_00000000_00000000_00000010);
+        test1.toggle_msb();
+        assert_eq!(test1.to_integer(), 2);
+    }
     
+    #[test]
+    fn test_toggle_lsb() {
+        let mut test1 = Bitboard::new(0b_00000000_00000000_00010000_00000000_00000000_00000000_00000000_00000010);
+        test1.toggle_lsb();
+        assert_eq!(test1.to_integer(), 0b_00000000_00000000_00010000_00000000_00000000_00000000_00000000_00000000);
+    }
 }
