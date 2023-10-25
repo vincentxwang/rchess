@@ -7,6 +7,7 @@ use crate::game::board::Board as Board;
 use crate::game::magic::*;
 
 // Move represents a single move from one side on a chessboard. This is otherwise called a "half-move."
+#[derive(Debug)]
 pub struct Move {
     pub color: Color,
     pub piece: Piece,
@@ -182,12 +183,14 @@ impl Move {
     // generate_all_bishop_moves does NOT check for legality.
     pub fn generate_all_bishop_moves(board: &Board, origin: &Square) -> Vec<Move> {
         let mover = board.meta.player;
-        let mut bishop_squares: Vec<Square> = Vec::new();
-        let mut bishop_moves: Vec<Move> = Vec::new();
+    
+        let northwest = Move::get_positive_ray_attacks(board, origin, Direction::Northwest).get_squares();
+        let northeast = Move::get_positive_ray_attacks(board, origin, Direction::Northeast).get_squares();
+        let southwest = Move::get_negative_ray_attacks(board, origin, Direction::Southwest).get_squares();
+        let southeast = Move::get_negative_ray_attacks(board, origin, Direction::Southeast).get_squares();
         
-
-        // Positive ray attacks.
-        
+        let mut bishop_squares = [northwest, northeast, southwest, southeast].concat();
+        let mut bishop_moves = Vec::new();
 
         while bishop_squares.len() != 0 {
             bishop_moves.push( Move {

@@ -24,7 +24,6 @@ impl Bitboard {
     // Insert a bit into a bitboard.
     pub fn insert(&mut self, square: &Square) {
         self.0 |= 1 << *square as u8;
-        println!("inserting {:?} to make {}", *square as u8, self.0)
     }
 
     // Shifts bitboard left by an integer.
@@ -106,6 +105,16 @@ impl Bitboard {
             println!("");
         }
         println!("----------- End of Print ------------");
+    }
+
+    pub fn get_squares(&self) -> Vec<Square> {
+        let mut bitboard = self.clone();
+        let mut squares = Vec::new();
+        while bitboard.0 != 0 {
+            squares.push(bitboard.find_lsb());
+            bitboard.toggle(&bitboard.find_lsb());
+        }
+        squares
     }
 }
 

@@ -32,7 +32,7 @@ mod tests {
         test1.set_zero(&Square::H8);
         assert_eq!(test1.to_integer(), 0b_00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000010)
     }
-    
+
     #[test]
     fn test_toggle() {
         let mut test1 = Bitboard::empty();
