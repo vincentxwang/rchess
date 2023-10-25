@@ -432,8 +432,7 @@ impl Move {
         }
         king_moves
     }
-     
-
+    
     /*
     pub fn get_moves<>
      */

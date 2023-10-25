@@ -1,7 +1,9 @@
+use crate::core::structs::Direction;
 use crate::game::bitboard::Bitboard as Bitboard;
 use crate::core::constants::*;
 use crate::core::structs::Color as Color;
 use crate::core::structs::Square as Square;
+use crate::game::moves::Move as Move;
 use super::piece::Piece;
 
 #[derive(Debug)]
@@ -267,7 +269,7 @@ impl Board {
 
         panic!("something went wrong with get_piece. particularly a piece was detected in sides but not in pieces. bad.")
     }
-    
+
     pub fn print_board(&self) {
         println!("--------- Printing Board ----------");
         for rank in (0..8).rev() {
@@ -289,6 +291,151 @@ impl Board {
             println!("");
         }
         println!("----------- End of Print ------------");
+    }
+
+    // Gets the furthest piece along an attack ray in a direction. 
+    // Note that this will return None if the piece encountered is of the same Color.
+    pub fn get_furthest_piece_along_ray(&self, sq: &Square, dir: Direction) -> Option<(Piece, Color)> {
+
+        // Positive rays.
+        if dir as usize <= 3 {
+            let bitboard = Move::get_positive_ray_attacks(self, &sq, dir);
+            if bitboard.to_integer() == 0 {
+                return None;
+            } 
+            return self.get_piece(&bitboard.find_msb());
+        // Negative rays.
+        } else {
+            let bitboard = Move::get_negative_ray_attacks(self, &sq, dir);
+            if bitboard.to_integer() == 0 {
+                return None;
+            }
+            return self.get_piece(&bitboard.find_lsb());
+        }
+    }
+
+    // Checks if a square is attacked. Very naive. Possibly fails.
+    pub fn is_attacked(&self, sq: &Square) -> bool {
+        let mover = self.meta.player;
+        let not_mover = Color::not(mover);
+
+        let file = sq.get_file();
+        let rank = sq.get_rank();
+        // Check for pawn.
+        if mover == Color::White {
+            if rank != 8 &&
+                // We put parentheses here so the bottom is not evaluated when "rank != 8" short circuits.
+                (self.get_piece(&Square::from_int(*sq as usize + 7)) == Some((Piece::Pawn, not_mover)) ||
+                self.get_piece(&Square::from_int(*sq as usize + 9)) == Some((Piece::Pawn, not_mover)))
+            {
+                return true;
+            }
+        } else {
+            if rank != 1 &&
+                (self.get_piece(&Square::from_int(*sq as usize - 7)) == Some((Piece::Pawn, not_mover)) ||
+                self.get_piece(&Square::from_int(*sq as usize - 9)) == Some((Piece::Pawn, not_mover)))
+            {
+                return true;
+            }
+        }
+        // Check for knight.
+        // NWW
+        if file >= 2 && rank <= 7 &&
+            self.get_piece(&Square::from_int(*sq as usize + 6)) == Some((Piece::Knight, not_mover))
+        {
+            return true;
+        } 
+
+        // SWW
+        if file >= 2 && rank >= 2 &&
+            self.get_piece(&Square::from_int(*sq as usize - 10)) == Some((Piece::Knight, not_mover))
+        {
+            return true;
+        } 
+
+        // SSW
+        if file >= 1 && rank >= 3 &&
+            self.get_piece(&Square::from_int(*sq as usize - 17)) == Some((Piece::Knight, not_mover))
+        {
+            return true;
+        } 
+
+        // SSE
+        if file <= 6 && rank >= 3 &&
+            self.get_piece(&Square::from_int(*sq as usize - 15)) == Some((Piece::Knight, not_mover))
+        {
+            return true;
+        } 
+
+        // SEE
+        if file <= 5 && rank >= 2 &&
+            self.get_piece(&Square::from_int(*sq as usize - 6)) == Some((Piece::Knight, not_mover))
+        {
+            return true;
+        } 
+
+        // NEE
+        if file <= 5 && rank <= 7 &&
+            self.get_piece(&Square::from_int(*sq as usize + 10)) == Some((Piece::Knight, not_mover))
+        {
+            return true;
+        } 
+
+        // NNE
+        if file <= 6 && rank <= 6 &&
+            self.get_piece(&Square::from_int(*sq as usize + 17)) == Some((Piece::Knight, not_mover))
+        {
+            return true;
+        } 
+        
+        // NNW
+        if file >= 1 && rank <= 6 &&
+            self.get_piece(&Square::from_int(*sq as usize + 15)) == Some((Piece::Knight, not_mover))
+        {
+            return true;
+        } 
+
+        // Check for bishop.
+        let possible_bishop_threats = vec![
+            self.get_furthest_piece_along_ray(sq, Direction::Northwest),
+            self.get_furthest_piece_along_ray(sq, Direction::Northeast),
+            self.get_furthest_piece_along_ray(sq, Direction::Southeast),
+            self.get_furthest_piece_along_ray(sq, Direction::Southwest),
+        ];
+        if possible_bishop_threats.contains(&Some((Piece::Bishop, not_mover)))
+        {
+            return true;
+        }
+
+        // Check for rook.
+        let possible_rook_threats = vec![
+            self.get_furthest_piece_along_ray(sq, Direction::North),
+            self.get_furthest_piece_along_ray(sq, Direction::East),
+            self.get_furthest_piece_along_ray(sq, Direction::South),
+            self.get_furthest_piece_along_ray(sq, Direction::West),
+        ];
+        if possible_rook_threats.contains(&Some((Piece::Rook, not_mover)))
+        {
+            return true;
+        }
+        
+        // Check for queen.
+        let possible_queen_threats = vec![
+            self.get_furthest_piece_along_ray(sq, Direction::North),
+            self.get_furthest_piece_along_ray(sq, Direction::East),
+            self.get_furthest_piece_along_ray(sq, Direction::South),
+            self.get_furthest_piece_along_ray(sq, Direction::West),
+            self.get_furthest_piece_along_ray(sq, Direction::Northwest),
+            self.get_furthest_piece_along_ray(sq, Direction::Northeast),
+            self.get_furthest_piece_along_ray(sq, Direction::Southeast),
+            self.get_furthest_piece_along_ray(sq, Direction::Southwest),
+        ];
+        if possible_queen_threats.contains(&Some((Piece::Queen, not_mover)))
+        {
+            return true;
+        }
+
+        false
     }
 }
 

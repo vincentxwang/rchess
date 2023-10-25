@@ -82,6 +82,7 @@ impl Bitboard {
         self.toggle(&Square::from_int(self.0.trailing_zeros() as usize))       
     }
     
+    // find_lsb assumes that self is nonempty.
     pub fn find_lsb(&self) -> Square {
         Square::from_int(self.0.trailing_zeros() as usize)
     }
