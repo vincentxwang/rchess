@@ -4,6 +4,15 @@ pub enum Color {
     Black = 1,
 }
 
+impl Color {
+    pub fn not(color: Color) -> Color {
+        match color {
+            Color::White => Color::Black,
+            Color::Black => Color::White,
+        }
+    }
+}
+
 impl PartialEq for Color {
     fn eq(&self, other: &Self) -> bool {
         *self as usize == *other as usize
@@ -132,12 +141,12 @@ impl Square {
         Square::from_int((row as usize - 1) * 8 + col)
     }
 
-    // Returns an integer that represents the file (vertical).
+    // Returns an integer that represents the file (vertical). (0..7)
     pub fn get_file(&self) -> usize {
         *self as usize % 8
     }
 
-    // Returns an integer that represents the rank (horizontal).
+    // Returns an integer that represents the rank (horizontal). (1..8)
     pub fn get_rank(&self) -> usize {
         *self as usize / 8 + 1
     }

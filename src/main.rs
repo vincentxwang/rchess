@@ -12,11 +12,12 @@ use crate::core::structs::Square as Square;
 
 fn main() {
 
-    let test1 = Board::from_fen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e3 0 0").unwrap();
+    let test1 = Board::from_fen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 0").unwrap();
     println!("{:?}", Move::generate_all_bishop_moves(&test1, &Square::G2));
 
     test1.print_board();
     println!("{:?}", Move::generate_all_queen_moves(&test1, &Square::D1));
+    println!("{:?}", Move::generate_all_pawn_moves(&test1, &Square::G7));
 
 
 }

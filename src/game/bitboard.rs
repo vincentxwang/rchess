@@ -107,6 +107,7 @@ impl Bitboard {
         println!("----------- End of Print ------------");
     }
 
+    // Returns a vector of squares that a Bitboard represents.
     pub fn get_squares(&self) -> Vec<Square> {
         let mut bitboard = self.clone();
         let mut squares = Vec::new();

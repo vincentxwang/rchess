@@ -1,3 +1,4 @@
+use crate::core::constants::PIECETYPE_COUNT;
 use crate::core::structs::Direction;
 use crate::game::piece::Piece as Piece; 
 use crate::game::bitboard::Bitboard as Bitboard;
@@ -258,6 +259,104 @@ impl Move {
         queen_moves
     }
 
+    pub fn generate_all_pawn_moves(board: &Board, origin: &Square) -> Vec<Move> {
+        let mover = board.meta.player;
+        let all_pieces = board.sides[Color::White as usize].clone().or(&board.sides[Color::Black as usize]);
+
+        let mut pawn_squares: Vec<Square> = Vec::new();
+        let mut pawn_moves: Vec<Move> = Vec::new();
+
+        // Check if white pawn on 2nd rank.
+        if mover == Color::White {
+
+            if origin.get_rank() == 2 
+            {
+                pawn_squares.push(Square::from_int(*origin as usize + 2 * 8));
+            }
+            let northwest_square = Square::from_int(*origin as usize + 7);
+            if origin.get_file() != 0 && 
+                board.sides[Color::Black as usize].is_piece(&northwest_square) || 
+                board.meta.en_passant_square == Some(northwest_square) 
+            {
+                pawn_squares.push(northwest_square);
+            }
+            let northeast_square = Square::from_int(*origin as usize + 9);
+            if origin.get_file() != 7 && 
+                board.sides[Color::Black as usize].is_piece(&northeast_square) || 
+                board.meta.en_passant_square == Some(northeast_square) 
+            {
+            pawn_squares.push(northeast_square);
+            } 
+            // One square forward.
+            if !all_pieces.is_piece(&Square::from_int(*origin as usize + 8)) 
+            {
+                pawn_squares.push(Square::from_int(*origin as usize + 8));
+            }
+        
+        } else {
+            
+            if origin.get_rank() == 7 
+            {
+                pawn_squares.push(Square::from_int(*origin as usize - 2 * 8));
+            }
+            let southwest_square = Square::from_int(*origin as usize - 9);
+            if origin.get_file() != 0 && 
+                board.sides[Color::White as usize].is_piece(&southwest_square) || 
+                board.meta.en_passant_square == Some(southwest_square) 
+            {
+                pawn_squares.push(southwest_square);
+            }
+            let southeast_square = Square::from_int(*origin as usize - 7);
+            if origin.get_file() != 7 && 
+                board.sides[Color::White as usize].is_piece(&southeast_square) || 
+                board.meta.en_passant_square == Some(southeast_square) 
+            {
+            pawn_squares.push(southeast_square);
+            } 
+            // One square forward.
+            if !all_pieces.is_piece(&Square::from_int(*origin as usize - 8)) 
+            {
+                pawn_squares.push(Square::from_int(*origin as usize - 8));
+            }
+        }
+
+        println!("{:?}", pawn_squares);
+
+        // All non-promotion moves!
+        while pawn_squares.len() != 0 {
+            // Check if the move is a promotion.
+            if (origin.get_rank() == 7 && mover == Color::White) || (origin.get_rank() == 2 && mover == Color::Black) {
+                let destination = pawn_squares.pop().unwrap();
+                for i in 0..PIECETYPE_COUNT {
+                    pawn_moves.push( Move {
+                        color: mover,
+                        origin: *origin,
+                        piece: Piece::Pawn,
+                        destination: destination,
+                        promote_type: Some(Piece::from_id(i)),
+                        is_castle: false,
+                    })
+                }
+            } else {
+            pawn_moves.push( Move {
+                color: mover,
+                origin: *origin,
+                piece: Piece::Pawn,
+                destination: pawn_squares.pop().unwrap(),
+                promote_type: None,
+                is_castle: false,
+            });
+            }
+        }
+        /*
+                    if origin.get_rank() == 7 &&
+                !all_pieces.is_piece(&Square::from_int(*origin as usize + 8)) 
+            {
+
+            }
+         */
+        pawn_moves
+    }
     /*
     pub fn get_moves<>
      */
