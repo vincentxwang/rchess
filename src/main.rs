@@ -7,15 +7,15 @@ pub mod core;
 pub mod tests;
 use crate::game::magic::*;
 use crate::core::structs::Direction as Direction;
+use crate::game::moves::Move as Move;
+use crate::core::structs::Square as Square;
 
 fn main() {
-    /*
-    println!("{:?}", RAY_ATTACKS[Direction::North as usize][62]);
 
     let test1 = Board::from_fen("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 0").unwrap();
+    println!("{:?}", Move::generate_all_bishop_moves(&test1, &Square::G2));
 
-    Bitboard::print_bitboard(&test1.sides[0]);
-     */
+    test1.print_board();
 
 
 }

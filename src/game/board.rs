@@ -92,7 +92,6 @@ impl Board {
     pub fn add_piece(&mut self, color: &Color, piece: &Piece, sq: &Square) {
         self.sides[*color as usize].insert(sq); 
         self.pieces[*piece as usize].insert(sq);
-        println!("inserting color: {:?}, piece: {:?}, square: {:?}", color, piece, sq);
     }
 
     // Constructs the board from a FEN string.
@@ -246,6 +245,51 @@ impl Board {
 
         Ok(board)
     }  
+
+    // Gets a piece from a square on a board.
+    pub fn get_piece(&self, sq: &Square) -> Option<(Piece, Color)> {
+        if !self.sides[Color::White as usize].is_piece(sq) && !self.sides[Color::Black as usize].is_piece(sq) {
+            return None;
+        } 
+        let color = {
+            if self.sides[Color::White as usize].is_piece(sq) {
+                Color::White
+            } else {
+                Color::Black
+            }
+        };
+  
+        for i in 0..PIECETYPE_COUNT {
+            if self.pieces[i].is_piece(sq) {
+                return Some((Piece::from_id(i), color));
+            }
+        }
+
+        panic!("something went wrong with get_piece. particularly a piece was detected in sides but not in pieces. bad.")
+    }
+    
+    pub fn print_board(&self) {
+        println!("--------- Printing Board ----------");
+        for rank in (0..8).rev() {
+            for file in 0..8 {
+                let sq = Square::from_int(8 * rank + file);
+                let piece = self.get_piece(&sq);
+                if piece.is_none() {
+                    print!("- ");
+                } else {
+                    // Note that Piece::code returns an upper case letter.
+                    let char = Piece::code(piece.unwrap().0);
+                    if piece.unwrap().1 == Color::Black {
+                        print!("{} ", char.to_ascii_lowercase());
+                    } else {
+                        print!("{} ", char);
+                    }
+                }
+            }
+            println!("");
+        }
+        println!("----------- End of Print ------------");
+    }
 }
 
 #[derive(Debug)]
