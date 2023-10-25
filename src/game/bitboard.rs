@@ -52,6 +52,11 @@ impl Bitboard {
         *self
     }
 
+    pub fn or(&mut self, bitboard: &Bitboard) -> Bitboard {
+        self.0 |= bitboard.0;
+        *self
+    }
+
     pub fn xor(&mut self, bitboard: &Bitboard) -> Bitboard {
         self.0 ^= bitboard.0;
         *self
@@ -85,6 +90,7 @@ impl Bitboard {
     // Prints a nice 8x8 array of a bitboard. Used for debugging.
     pub fn print_bitboard(&self) {
         println!("--------- Printing Bitboard ----------");
+        println!("Bitboard u64: {}", self.0);
         for rank in (0..8).rev() {
             for file in 0..8 {
                 if self.is_piece(&Square::from_int(8 * rank + file)) {
