@@ -94,43 +94,51 @@ impl Move {
         let file = origin.get_file();
         let rank = origin.get_rank();
 
-        if file >= 2 && rank <= 6 {
-            knight_squares.push(Square::from_distance(&origin, 2, 1, false, true));
+        // NWW
+        if file >= 2 && rank <= 7 {
+            knight_squares.push(Square::from_int(*origin as usize + 6));
         } 
 
-        if file >= 2 && rank >= 1 {
-            knight_squares.push(Square::from_distance(&origin, 2, 1, false, false));
+        // SWW
+        if file >= 2 && rank >= 2 {
+            knight_squares.push(Square::from_int(*origin as usize - 10));
         }
 
-        if file >= 1 && rank >= 2 {
-            knight_squares.push(Square::from_distance(&origin, 1, 2, false, false));
+        // SSW
+        if file >= 1 && rank >= 3 {
+            knight_squares.push(Square::from_int(*origin as usize - 17));
         }
 
-        if file <= 6 && rank >= 2 {
-            knight_squares.push(Square::from_distance(&origin, 1, 2, true, false));
+        // SSE
+        if file <= 6 && rank >= 3 {
+            knight_squares.push(Square::from_int(*origin as usize - 15));
         }
 
-        if file <= 5 && rank >= 1 {
-            knight_squares.push(Square::from_distance(&origin, 2, 1, true, false));
+        // SEE
+        if file <= 5 && rank >= 2 {
+            knight_squares.push(Square::from_int(*origin as usize - 6));
         }
 
-        if file <= 5 && rank <= 6 {
-            knight_squares.push(Square::from_distance(&origin, 2, 1, true, true));
+        // NEE
+        if file <= 5 && rank <= 7 {
+            knight_squares.push(Square::from_int(*origin as usize + 10));
         }
 
-        if file <= 6 && rank <= 5 {
-            knight_squares.push(Square::from_distance(&origin, 1, 2, true, true));
+        // NNE
+        if file <= 6 && rank <= 6 {
+            knight_squares.push(Square::from_int(*origin as usize + 17));
         }
 
-        if file >= 1 && rank <= 5 {
-            knight_squares.push(Square::from_distance(&origin, 1, 2, false, true));
+        // NNW
+        if file >= 1 && rank <= 6 {
+            knight_squares.push(Square::from_int(*origin as usize + 15));
         }
 
         let mut knight_moves = Vec::new();
 
         while knight_squares.len() != 0 {
             let knight_square = knight_squares.pop().unwrap();
-            if board.sides[mover as usize].is_piece(&knight_square) {
+            if !board.sides[mover as usize].is_piece(&knight_square) {
                 knight_moves.push( Move {
                     color: mover,
                     origin: *origin,
@@ -162,7 +170,7 @@ impl Move {
         attacks
     }
     
-    // Returns all valid squares in a poaitive direction.
+    // Returns all valid squares in a positive direction.
     pub fn get_negative_ray_attacks(board: &Board, origin: &Square, dir: Direction) -> Bitboard {
         let mover = board.meta.player;
         if dir as usize <= 3 {
@@ -230,7 +238,7 @@ impl Move {
         rook_moves
     }
 
-    // generate_all_rook_moves does NOT check for legality.
+    // generate_all_queen_moves does NOT check for legality.
     pub fn generate_all_queen_moves(board: &Board, origin: &Square) -> Vec<Move> {
         let mover = board.meta.player;
     
@@ -259,6 +267,7 @@ impl Move {
         queen_moves
     }
 
+    // generate_all_pawn_moves does NOT check for legality.
     pub fn generate_all_pawn_moves(board: &Board, origin: &Square) -> Vec<Move> {
         let mover = board.meta.player;
         let all_pieces = board.sides[Color::White as usize].clone().or(&board.sides[Color::Black as usize]);
@@ -357,6 +366,14 @@ impl Move {
          */
         pawn_moves
     }
+    
+    /*
+        pub fn generate_all_king_moves(board: &Board, origin: &Square) -> Vec<Move> {
+        let mover = board.meta.player;
+
+    }
+     */
+
     /*
     pub fn get_moves<>
      */
