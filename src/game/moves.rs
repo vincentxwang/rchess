@@ -146,7 +146,7 @@ impl Move {
     // Returns all valid squares in a poaitive direction.
     pub fn get_positive_ray_attacks(board: &Board, origin: &Square, dir: Direction) -> Bitboard {
         let mover = board.meta.player;
-        if dir as usize > 4 {
+        if dir as usize >= 4 {
             panic!("tried to get_positive_ray_attacks on a negative direction!");
         }
         let mut attacks = RAY_ATTACKS[dir as usize][*origin as usize];
@@ -164,7 +164,7 @@ impl Move {
     // Returns all valid squares in a poaitive direction.
     pub fn get_negative_ray_attacks(board: &Board, origin: &Square, dir: Direction) -> Bitboard {
         let mover = board.meta.player;
-        if dir as usize <= 4 {
+        if dir as usize <= 3 {
             panic!("tried to get_negative_ray_attacks on a positive direction!");
         }
         let mut attacks = RAY_ATTACKS[dir as usize][*origin as usize];
@@ -178,7 +178,6 @@ impl Move {
         }
         attacks
     }
-
 
     // generate_all_bishop_moves does NOT check for legality.
     pub fn generate_all_bishop_moves(board: &Board, origin: &Square) -> Vec<Move> {
@@ -203,6 +202,60 @@ impl Move {
             });
         }
         bishop_moves
+    }
+
+    // generate_all_rook_moves does NOT check for legality.
+    pub fn generate_all_rook_moves(board: &Board, origin: &Square) -> Vec<Move> {
+        let mover = board.meta.player;
+    
+        let west = Move::get_negative_ray_attacks(board, origin, Direction::West).get_squares();
+        let north = Move::get_positive_ray_attacks(board, origin, Direction::North).get_squares();
+        let east = Move::get_positive_ray_attacks(board, origin, Direction::East).get_squares();
+        let south = Move::get_negative_ray_attacks(board, origin, Direction::South).get_squares();
+        
+        let mut rook_squares = [west, north, east, south].concat();
+        let mut rook_moves = Vec::new();
+
+        while rook_squares.len() != 0 {
+            rook_moves.push( Move {
+                color: mover,
+                origin: *origin,
+                piece: Piece::Rook,
+                destination: rook_squares.pop().unwrap(),
+                promote_type: None,
+                is_castle: false,
+            });
+        }
+        rook_moves
+    }
+
+    // generate_all_rook_moves does NOT check for legality.
+    pub fn generate_all_queen_moves(board: &Board, origin: &Square) -> Vec<Move> {
+        let mover = board.meta.player;
+    
+        let west = Move::get_negative_ray_attacks(board, origin, Direction::West).get_squares();
+        let north = Move::get_positive_ray_attacks(board, origin, Direction::North).get_squares();
+        let east = Move::get_positive_ray_attacks(board, origin, Direction::East).get_squares();
+        let south = Move::get_negative_ray_attacks(board, origin, Direction::South).get_squares();
+        let northwest = Move::get_positive_ray_attacks(board, origin, Direction::Northwest).get_squares();
+        let northeast = Move::get_positive_ray_attacks(board, origin, Direction::Northeast).get_squares();
+        let southwest = Move::get_negative_ray_attacks(board, origin, Direction::Southwest).get_squares();
+        let southeast = Move::get_negative_ray_attacks(board, origin, Direction::Southeast).get_squares();
+        
+        let mut queen_squares = [west, north, east, south, northwest, northeast, southwest, southeast].concat();
+        let mut queen_moves = Vec::new();
+
+        while queen_squares.len() != 0 {
+            queen_moves.push( Move {
+                color: mover,
+                origin: *origin,
+                piece: Piece::Queen,
+                destination: queen_squares.pop().unwrap(),
+                promote_type: None,
+                is_castle: false,
+            });
+        }
+        queen_moves
     }
 
     /*
