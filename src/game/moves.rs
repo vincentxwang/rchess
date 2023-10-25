@@ -367,12 +367,72 @@ impl Move {
         pawn_moves
     }
     
-    /*
-        pub fn generate_all_king_moves(board: &Board, origin: &Square) -> Vec<Move> {
+    // generate_all_king_moves does NOT check for legality. Castling handled separately.
+    pub fn generate_all_king_moves(board: &Board, origin: &Square) -> Vec<Move> {
         let mover = board.meta.player;
+        let mut king_squares: Vec<Square> = Vec::new();
 
+        let file = origin.get_file();
+        let rank = origin.get_rank();
+
+        // E
+        if file <= 6 {
+            king_squares.push(Square::from_int(*origin as usize + 1));
+        } 
+
+        // NE
+        if file <= 6 && rank <= 7 {
+            king_squares.push(Square::from_int(*origin as usize + 9));
+        }
+
+        // N
+        if rank <= 7 {
+            king_squares.push(Square::from_int(*origin as usize + 8));
+        }
+
+        // NW
+        if file >= 1 && rank <= 7 {
+            king_squares.push(Square::from_int(*origin as usize + 7));
+        }
+
+        // W
+        if file >= 1 {
+            king_squares.push(Square::from_int(*origin as usize - 1));
+        }
+
+        // SW
+        if file >= 1 && rank >= 2 {
+            king_squares.push(Square::from_int(*origin as usize - 9));
+        }
+
+        // S
+        if rank >= 2 {
+            king_squares.push(Square::from_int(*origin as usize - 8));
+        }
+
+        // NNW
+        if file <= 6 && rank >= 2 {
+            king_squares.push(Square::from_int(*origin as usize - 7));
+        }
+
+        let mut king_moves = Vec::new();
+
+        while king_squares.len() != 0 {
+            let king_square = king_squares.pop().unwrap();
+            if !board.sides[mover as usize].is_piece(&king_square) {
+                king_moves.push( Move {
+                    color: mover,
+                    origin: *origin,
+                    piece: Piece::King,
+                    destination: king_square,
+                    promote_type: None,
+                    is_castle: false,
+                });
+            }
+        }
+        king_moves
     }
-     */
+     
 
     /*
     pub fn get_moves<>

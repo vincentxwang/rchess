@@ -18,7 +18,7 @@ fn main() {
     test1.print_board();
     //println!("{:?}", Move::generate_all_queen_moves(&test1, &Square::D1));
     //println!("{:?}", Move::generate_all_pawn_moves(&test1, &Square::G7));
-    println!("{:?}", Move::generate_all_knight_moves(&test1, &Square::B1));
+    println!("{:?}", Move::generate_all_king_moves(&test1, &Square::E8));
 
 
 }
