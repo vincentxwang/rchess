@@ -1,7 +1,10 @@
+use crate::core::structs::Direction;
 use crate::game::piece::Piece as Piece; 
+use crate::game::bitboard::Bitboard as Bitboard;
 use crate::core::structs::Square as Square;
 use crate::core::structs::Color as Color;
 use crate::game::board::Board as Board;
+use crate::game::magic::*;
 
 // Move represents a single move from one side on a chessboard. This is otherwise called a "half-move."
 pub struct Move {
@@ -138,14 +141,32 @@ impl Move {
         }
         knight_moves
     }
+    
+    // Returns all valid squares in a direction.
+    pub fn get_positive_ray_attacks(board: &Board, origin: &Square, dir: Direction) -> Bitboard {
+        if dir as usize > 4 {
+            panic!("tried to get_positive_ray_attacks on a negative direction!");
+        }
+        let mut attacks = RAY_ATTACKS[dir as usize][*origin as usize];
+        let all_pieces = board.sides[0].clone().or(&board.sides[1]);
+        let blockers = attacks.clone().and(&all_pieces);
+        if blockers.to_integer() != 0 {
+            attacks.xor(&RAY_ATTACKS[dir as usize][blockers.find_lsb() as usize]);
+        }
+        attacks
+    }
+
+
 
     // generate_all_bishop_moves does NOT check for legality.
     pub fn generate_all_bishop_moves(board: &Board, origin: &Square) -> Vec<Move> {
         let mover = board.meta.player;
         let mut bishop_squares: Vec<Square> = Vec::new();
-
- 
         let mut bishop_moves: Vec<Move> = Vec::new();
+        
+
+        // Positive ray attacks.
+        
 
         while bishop_squares.len() != 0 {
             bishop_moves.push( Move {
