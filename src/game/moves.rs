@@ -142,20 +142,41 @@ impl Move {
         knight_moves
     }
     
-    // Returns all valid squares in a direction.
+    // Returns all valid squares in a poaitive direction.
     pub fn get_positive_ray_attacks(board: &Board, origin: &Square, dir: Direction) -> Bitboard {
+        let mover = board.meta.player;
         if dir as usize > 4 {
             panic!("tried to get_positive_ray_attacks on a negative direction!");
         }
         let mut attacks = RAY_ATTACKS[dir as usize][*origin as usize];
-        let all_pieces = board.sides[0].clone().or(&board.sides[1]);
+        let all_pieces = board.sides[Color::White as usize].clone().or(&board.sides[Color::Black as usize]);
         let blockers = attacks.clone().and(&all_pieces);
         if blockers.to_integer() != 0 {
             attacks.xor(&RAY_ATTACKS[dir as usize][blockers.find_lsb() as usize]);
+            if board.sides[mover as usize].is_piece(&blockers.find_lsb()) {
+                attacks.toggle(&blockers.find_lsb());
+            }
         }
         attacks
     }
-
+    
+    // Returns all valid squares in a poaitive direction.
+    pub fn get_negative_ray_attacks(board: &Board, origin: &Square, dir: Direction) -> Bitboard {
+        let mover = board.meta.player;
+        if dir as usize <= 4 {
+            panic!("tried to get_negative_ray_attacks on a positive direction!");
+        }
+        let mut attacks = RAY_ATTACKS[dir as usize][*origin as usize];
+        let all_pieces = board.sides[Color::White as usize].clone().or(&board.sides[Color::Black as usize]);
+        let blockers = attacks.clone().and(&all_pieces);
+        if blockers.to_integer() != 0 {
+            attacks.xor(&RAY_ATTACKS[dir as usize][blockers.find_msb() as usize]);
+            if board.sides[mover as usize].is_piece(&blockers.find_msb()) {
+                attacks.toggle(&blockers.find_msb());
+            }
+        }
+        attacks
+    }
 
 
     // generate_all_bishop_moves does NOT check for legality.

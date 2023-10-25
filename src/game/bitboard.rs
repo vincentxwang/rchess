@@ -87,6 +87,10 @@ impl Bitboard {
         Square::from_int(self.0.trailing_zeros() as usize)
     }
 
+    pub fn find_msb(&self) -> Square {
+        Square::from_int(63 - self.0.leading_zeros() as usize)
+    }
+
     // Prints a nice 8x8 array of a bitboard. Used for debugging.
     pub fn print_bitboard(&self) {
         println!("--------- Printing Bitboard ----------");
