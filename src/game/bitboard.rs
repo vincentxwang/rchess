@@ -46,6 +46,16 @@ impl Bitboard {
         self.0 &= !(1 << *square as u8);
     }
 
+    pub fn set_one(&mut self, square: &Square) {
+        self.0 |= 1 << *square as u8;
+    }
+
+    // Sets a bit on origin to zero, sets a bit on destination to one.
+    pub fn switch(&mut self, origin: &Square, destination: &Square) {
+        self.set_zero(origin);
+        self.set_one(destination);
+    }
+
     pub fn and(&mut self, bitboard: &Bitboard) -> Bitboard {
         self.0 &= bitboard.0;
         *self

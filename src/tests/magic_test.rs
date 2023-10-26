@@ -76,7 +76,7 @@ mod tests {
         let board1 = Board::from_fen("r1bqkbnr/p1pppppp/1pn5/8/8/6P1/PPPPPPBP/RNBQK1NR w KQkq e3 0 0").unwrap();
         board1.sides[0].print_bitboard();
         board1.sides[1].print_bitboard();
-        assert_eq!(Move::get_positive_ray_attacks(&board1, &Square::G2, Direction::Northwest).to_integer(), 0b_00000000_00000000_00000100_00001000_00010000_00100000_00000000_00000000);
+        assert_eq!(Move::get_positive_ray_attacks(&board1, &Square::G2, Direction::Northwest, board1.meta.player).to_integer(), 0b_00000000_00000000_00000100_00001000_00010000_00100000_00000000_00000000);
     }
 
     #[test]
@@ -84,7 +84,7 @@ mod tests {
         let board1 = Board::from_fen("rn1qkbnr/pbpppppp/1p6/8/8/6P1/PPPPPPBP/RNBQK1NR b KQkq e3 0 0").unwrap();
         board1.sides[0].print_bitboard();
         board1.sides[1].print_bitboard();
-        assert_eq!(Move::get_negative_ray_attacks(&board1, &Square::B7, Direction::Southeast).to_integer(), 0b_00000000_00000000_00000100_00001000_00010000_00100000_01000000_00000000);
+        assert_eq!(Move::get_negative_ray_attacks(&board1, &Square::B7, Direction::Southeast, board1.meta.player).to_integer(), 0b_00000000_00000000_00000100_00001000_00010000_00100000_01000000_00000000);
     }
 
 }

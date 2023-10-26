@@ -6,7 +6,7 @@ use crate::core::structs::Square as Square;
 use crate::game::moves::Move as Move;
 use super::piece::Piece;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Board {
     
     // Bitboards representing the white/black pieces. [White, Black].
@@ -19,10 +19,10 @@ pub struct Board {
 }
 
 // BoardData stores additional information about the Board aside from piece locations.
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct BoardData {
     pub player: Color,
-    pub castle_rights: CastleRights,
+    pub castle_rights: [bool; 4], // White kingside, White queenside, Black kingside, Black queenside
     pub fifty_move: u8, 
     pub en_passant_square: Option<Square>,
     pub full_moves: u8,
@@ -46,12 +46,7 @@ impl Board {
             ],
             meta: BoardData {
                 player: Color::White,
-                castle_rights: CastleRights {
-                    white_kingside: true,
-                    white_queenside: true,
-                    black_kingside: true,
-                    black_queenside: true,
-                },
+                castle_rights: [true, true, true, true],
                 fifty_move: 0,
                 en_passant_square: None,
                 full_moves: 0,
@@ -75,12 +70,7 @@ impl Board {
             ],
             meta: BoardData {
                 player: Color::White,
-                castle_rights: CastleRights {
-                    white_kingside: false,
-                    white_queenside: false,
-                    black_kingside: false,
-                    black_queenside: false,
-                },
+                castle_rights: [false; 4],
                 fifty_move: 0,
                 en_passant_square: None,
                 full_moves: 0,
@@ -114,12 +104,7 @@ impl Board {
             ],
             meta: BoardData {
                 player: Color::White,
-                castle_rights: CastleRights {
-                    white_kingside: false,
-                    white_queenside: false,
-                    black_kingside: false,
-                    black_queenside: false,
-                },
+                castle_rights: [false; 4],
                 fifty_move: 0,
                 en_passant_square: None,
                 full_moves: 0,
@@ -185,10 +170,10 @@ impl Board {
 
         while chr != ' ' {
             match chr {
-                'q' => board.meta.castle_rights.black_queenside = true,
-                'Q' => board.meta.castle_rights.white_queenside = true,
-                'k' => board.meta.castle_rights.black_kingside = true,
-                'K' => board.meta.castle_rights.white_kingside = true,
+                'q' => board.meta.castle_rights[3] = true,
+                'Q' => board.meta.castle_rights[1] = true,
+                'k' => board.meta.castle_rights[2] = true,
+                'K' => board.meta.castle_rights[0]= true,
                 '-' => (),
                 _ => panic!("invalid castling characters")
             }
@@ -290,23 +275,33 @@ impl Board {
             }
             println!("");
         }
+        println!("Player: {:?}", self.meta.player);
+        println!("Castle Rights: {:?}", self.meta.castle_rights);
+        println!("Fifty Move: {:?}", self.meta.fifty_move);
+        println!("En Passant Square: {:?}", self.meta.en_passant_square);
+        println!("Full Move: {:?}", self.meta.full_moves);
         println!("----------- End of Print ------------");
+    }
+
+    // Gets square of king of a color. Assumes there is one and only one.
+    pub fn get_king(&self, color: &Color) -> Square {
+        self.sides[*color as usize].clone().and(&self.pieces[Piece::King as usize]).find_lsb()
     }
 
     // Gets the furthest piece along an attack ray in a direction. 
     // Note that this will return None if the piece encountered is of the same Color.
-    pub fn get_furthest_piece_along_ray(&self, sq: &Square, dir: Direction) -> Option<(Piece, Color)> {
+    pub fn get_furthest_piece_along_ray(&self, sq: &Square, dir: Direction, color: Color) -> Option<(Piece, Color)> {
 
         // Positive rays.
         if dir as usize <= 3 {
-            let bitboard = Move::get_positive_ray_attacks(self, &sq, dir);
+            let bitboard = Move::get_positive_ray_attacks(self, &sq, dir, color);
             if bitboard.to_integer() == 0 {
                 return None;
             } 
             return self.get_piece(&bitboard.find_msb());
         // Negative rays.
         } else {
-            let bitboard = Move::get_negative_ray_attacks(self, &sq, dir);
+            let bitboard = Move::get_negative_ray_attacks(self, &sq, dir, color);
             if bitboard.to_integer() == 0 {
                 return None;
             }
@@ -315,8 +310,8 @@ impl Board {
     }
 
     // Checks if a square is attacked. Very naive. Possibly fails.
-    pub fn is_attacked(&self, sq: &Square) -> bool {
-        let mover = self.meta.player;
+    pub fn is_attacked(&self, sq: &Square, color: Color) -> bool {
+        let mover = color;
         let not_mover = Color::not(mover);
 
         let file = sq.get_file();
@@ -397,10 +392,10 @@ impl Board {
 
         // Check for bishop.
         let possible_bishop_threats = vec![
-            self.get_furthest_piece_along_ray(sq, Direction::Northwest),
-            self.get_furthest_piece_along_ray(sq, Direction::Northeast),
-            self.get_furthest_piece_along_ray(sq, Direction::Southeast),
-            self.get_furthest_piece_along_ray(sq, Direction::Southwest),
+            self.get_furthest_piece_along_ray(sq, Direction::Northwest, color),
+            self.get_furthest_piece_along_ray(sq, Direction::Northeast, color),
+            self.get_furthest_piece_along_ray(sq, Direction::Southeast, color),
+            self.get_furthest_piece_along_ray(sq, Direction::Southwest, color),
         ];
         if possible_bishop_threats.contains(&Some((Piece::Bishop, not_mover)))
         {
@@ -409,10 +404,10 @@ impl Board {
 
         // Check for rook.
         let possible_rook_threats = vec![
-            self.get_furthest_piece_along_ray(sq, Direction::North),
-            self.get_furthest_piece_along_ray(sq, Direction::East),
-            self.get_furthest_piece_along_ray(sq, Direction::South),
-            self.get_furthest_piece_along_ray(sq, Direction::West),
+            self.get_furthest_piece_along_ray(sq, Direction::North, color),
+            self.get_furthest_piece_along_ray(sq, Direction::East, color),
+            self.get_furthest_piece_along_ray(sq, Direction::South, color),
+            self.get_furthest_piece_along_ray(sq, Direction::West, color),
         ];
         if possible_rook_threats.contains(&Some((Piece::Rook, not_mover)))
         {
@@ -421,14 +416,14 @@ impl Board {
         
         // Check for queen.
         let possible_queen_threats = vec![
-            self.get_furthest_piece_along_ray(sq, Direction::North),
-            self.get_furthest_piece_along_ray(sq, Direction::East),
-            self.get_furthest_piece_along_ray(sq, Direction::South),
-            self.get_furthest_piece_along_ray(sq, Direction::West),
-            self.get_furthest_piece_along_ray(sq, Direction::Northwest),
-            self.get_furthest_piece_along_ray(sq, Direction::Northeast),
-            self.get_furthest_piece_along_ray(sq, Direction::Southeast),
-            self.get_furthest_piece_along_ray(sq, Direction::Southwest),
+            self.get_furthest_piece_along_ray(sq, Direction::North, color),
+            self.get_furthest_piece_along_ray(sq, Direction::East, color),
+            self.get_furthest_piece_along_ray(sq, Direction::South, color),
+            self.get_furthest_piece_along_ray(sq, Direction::West, color),
+            self.get_furthest_piece_along_ray(sq, Direction::Northwest, color),
+            self.get_furthest_piece_along_ray(sq, Direction::Northeast, color),
+            self.get_furthest_piece_along_ray(sq, Direction::Southeast, color),
+            self.get_furthest_piece_along_ray(sq, Direction::Southwest, color),
         ];
         if possible_queen_threats.contains(&Some((Piece::Queen, not_mover)))
         {
@@ -437,13 +432,77 @@ impl Board {
 
         false
     }
-}
 
-#[derive(Debug)]
-pub struct CastleRights {
-    // boolean is bool, not Boolean!
-    white_kingside: bool,
-    white_queenside: bool,
-    black_kingside: bool,
-    black_queenside: bool,
+    pub fn process_move(&mut self, half_move: &Move) {
+        if half_move.color != self.meta.player {
+            panic!("move color disagrees with board player color!")
+        }
+        let mover = half_move.color;
+        let not_mover = Color::not(mover);
+        
+        // Process bitboards.
+        let captured = self.get_piece(&half_move.destination);
+        self.sides[not_mover as usize].set_zero(&half_move.destination);
+        if captured.is_some() {
+            self.pieces[captured.unwrap().0 as usize].set_zero(&half_move.destination);
+        }
+        self.sides[mover as usize].switch(&half_move.origin, &half_move.destination);
+        self.pieces[half_move.piece as usize].switch(&half_move.origin, &half_move.destination);
+
+        if half_move.promote_type != None {
+            self.pieces[Piece::Pawn as usize].set_zero(&half_move.destination);
+            self.pieces[half_move.promote_type.unwrap() as usize].set_one(&half_move.destination);
+        }
+
+        // Process meta.
+        if half_move.origin == Square::H1 || half_move.destination == Square::H1 {
+            self.meta.castle_rights[0] = false;
+        } else if half_move.origin == Square::A1 || half_move.destination == Square::A1 {
+            self.meta.castle_rights[1] = false;
+        } else if half_move.origin == Square::H8 || half_move.destination == Square::H8 {
+            self.meta.castle_rights[2] = false;
+        } else if half_move.origin == Square::A8 || half_move.destination == Square::A8 {
+            self.meta.castle_rights[3] = false;
+        }
+
+        if half_move.piece == Piece::King {
+            if mover == Color::White {
+                self.meta.castle_rights[0] = false;
+                self.meta.castle_rights[1] = false;
+            } else {
+                self.meta.castle_rights[2] = false;
+                self.meta.castle_rights[3] = false;
+            }
+        }
+
+        self.meta.player = not_mover;
+
+        if captured == None {
+            self.meta.fifty_move += 1;
+        } else {
+            self.meta.fifty_move = 0;
+        }
+
+        self.meta.full_moves += 1;
+
+        if half_move.piece == Piece::Pawn {
+            if mover == Color::White &&
+                half_move.origin.get_rank() == 2 &&
+                half_move.destination.get_rank() == 4 
+            {
+                self.meta.en_passant_square = Some(Square::from_int(half_move.origin as usize + 8));
+            } else if mover == Color::Black &&
+            half_move.origin.get_rank() == 7 &&
+            half_move.destination.get_rank() == 5
+            {
+            self.meta.en_passant_square = Some(Square::from_int(half_move.origin as usize - 8));
+            } else {
+                self.meta.en_passant_square = None;
+            }
+        } else {
+            self.meta.en_passant_square = None;
+        }
+        
+    }
+
 }

@@ -6,9 +6,10 @@ use crate::core::structs::Square as Square;
 use crate::core::structs::Color as Color;
 use crate::game::board::Board as Board;
 use crate::game::magic::*;
+use rand::prelude::*;
 
 // Move represents a single move from one side on a chessboard. This is otherwise called a "half-move."
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Move {
     pub color: Color,
     pub piece: Piece,
@@ -20,8 +21,7 @@ pub struct Move {
 
 impl Move {
 
-    // Converts a UCI move (long algebraic notation) to a Move. This will assume the UCI move being put is legal, given the origin piece exists.
-    // !!!!!!!!! is_check is NOT implemented.  
+    // Converts a UCI move (long algebraic notation) to a Move. This will assume the UCI move being put is legal, given the origin piece exists. 
     pub fn from_uci(board: &Board, str: &str) -> Move {
         let mut str_chrs = str.chars();
 
@@ -153,8 +153,8 @@ impl Move {
     }
     
     // Returns all valid squares in a poaitive direction.
-    pub fn get_positive_ray_attacks(board: &Board, origin: &Square, dir: Direction) -> Bitboard {
-        let mover = board.meta.player;
+    pub fn get_positive_ray_attacks(board: &Board, origin: &Square, dir: Direction, color: Color) -> Bitboard {
+        let mover = color;
         if dir as usize >= 4 {
             panic!("tried to get_positive_ray_attacks on a negative direction!");
         }
@@ -171,8 +171,8 @@ impl Move {
     }
     
     // Returns all valid squares in a positive direction.
-    pub fn get_negative_ray_attacks(board: &Board, origin: &Square, dir: Direction) -> Bitboard {
-        let mover = board.meta.player;
+    pub fn get_negative_ray_attacks(board: &Board, origin: &Square, dir: Direction, color: Color) -> Bitboard {
+        let mover = color;
         if dir as usize <= 3 {
             panic!("tried to get_negative_ray_attacks on a positive direction!");
         }
@@ -189,13 +189,13 @@ impl Move {
     }
 
     // generate_all_bishop_moves does NOT check for legality.
-    pub fn generate_all_bishop_moves(board: &Board, origin: &Square) -> Vec<Move> {
+    pub fn generate_all_bishop_moves(board: &Board, origin: &Square, color: Color) -> Vec<Move> {
         let mover = board.meta.player;
     
-        let northwest = Move::get_positive_ray_attacks(board, origin, Direction::Northwest).get_squares();
-        let northeast = Move::get_positive_ray_attacks(board, origin, Direction::Northeast).get_squares();
-        let southwest = Move::get_negative_ray_attacks(board, origin, Direction::Southwest).get_squares();
-        let southeast = Move::get_negative_ray_attacks(board, origin, Direction::Southeast).get_squares();
+        let northwest = Move::get_positive_ray_attacks(board, origin, Direction::Northwest, color).get_squares();
+        let northeast = Move::get_positive_ray_attacks(board, origin, Direction::Northeast, color).get_squares();
+        let southwest = Move::get_negative_ray_attacks(board, origin, Direction::Southwest, color).get_squares();
+        let southeast = Move::get_negative_ray_attacks(board, origin, Direction::Southeast, color).get_squares();
         
         let mut bishop_squares = [northwest, northeast, southwest, southeast].concat();
         let mut bishop_moves = Vec::new();
@@ -214,13 +214,13 @@ impl Move {
     }
 
     // generate_all_rook_moves does NOT check for legality.
-    pub fn generate_all_rook_moves(board: &Board, origin: &Square) -> Vec<Move> {
+    pub fn generate_all_rook_moves(board: &Board, origin: &Square, color: Color) -> Vec<Move> {
         let mover = board.meta.player;
     
-        let west = Move::get_negative_ray_attacks(board, origin, Direction::West).get_squares();
-        let north = Move::get_positive_ray_attacks(board, origin, Direction::North).get_squares();
-        let east = Move::get_positive_ray_attacks(board, origin, Direction::East).get_squares();
-        let south = Move::get_negative_ray_attacks(board, origin, Direction::South).get_squares();
+        let west = Move::get_negative_ray_attacks(board, origin, Direction::West, color).get_squares();
+        let north = Move::get_positive_ray_attacks(board, origin, Direction::North, color).get_squares();
+        let east = Move::get_positive_ray_attacks(board, origin, Direction::East, color).get_squares();
+        let south = Move::get_negative_ray_attacks(board, origin, Direction::South, color).get_squares();
         
         let mut rook_squares = [west, north, east, south].concat();
         let mut rook_moves = Vec::new();
@@ -239,17 +239,17 @@ impl Move {
     }
 
     // generate_all_queen_moves does NOT check for legality.
-    pub fn generate_all_queen_moves(board: &Board, origin: &Square) -> Vec<Move> {
+    pub fn generate_all_queen_moves(board: &Board, origin: &Square, color: Color) -> Vec<Move> {
         let mover = board.meta.player;
     
-        let west = Move::get_negative_ray_attacks(board, origin, Direction::West).get_squares();
-        let north = Move::get_positive_ray_attacks(board, origin, Direction::North).get_squares();
-        let east = Move::get_positive_ray_attacks(board, origin, Direction::East).get_squares();
-        let south = Move::get_negative_ray_attacks(board, origin, Direction::South).get_squares();
-        let northwest = Move::get_positive_ray_attacks(board, origin, Direction::Northwest).get_squares();
-        let northeast = Move::get_positive_ray_attacks(board, origin, Direction::Northeast).get_squares();
-        let southwest = Move::get_negative_ray_attacks(board, origin, Direction::Southwest).get_squares();
-        let southeast = Move::get_negative_ray_attacks(board, origin, Direction::Southeast).get_squares();
+        let west = Move::get_negative_ray_attacks(board, origin, Direction::West, color).get_squares();
+        let north = Move::get_positive_ray_attacks(board, origin, Direction::North, color).get_squares();
+        let east = Move::get_positive_ray_attacks(board, origin, Direction::East, color).get_squares();
+        let south = Move::get_negative_ray_attacks(board, origin, Direction::South, color).get_squares();
+        let northwest = Move::get_positive_ray_attacks(board, origin, Direction::Northwest, color).get_squares();
+        let northeast = Move::get_positive_ray_attacks(board, origin, Direction::Northeast, color).get_squares();
+        let southwest = Move::get_negative_ray_attacks(board, origin, Direction::Southwest, color).get_squares();
+        let southeast = Move::get_negative_ray_attacks(board, origin, Direction::Southeast, color).get_squares();
         
         let mut queen_squares = [west, north, east, south, northwest, northeast, southwest, southeast].concat();
         let mut queen_moves = Vec::new();
@@ -328,8 +328,6 @@ impl Move {
                 pawn_squares.push(Square::from_int(*origin as usize - 8));
             }
         }
-
-        println!("{:?}", pawn_squares);
 
         // All non-promotion moves!
         while pawn_squares.len() != 0 {
@@ -433,8 +431,100 @@ impl Move {
         king_moves
     }
     
-    /*
-    pub fn get_moves<>
-     */
-    
+    // generate_castles does check for legality.
+    pub fn generate_castles(board: &Board) -> Vec<Move> {
+
+        let mover = board.meta.player;
+        
+        let mut castle_moves = Vec::new();
+        let mut king_square = Square::A1;
+        let mut kingside_index = 0;
+        let mut queenside_index = 0;
+
+        if mover == Color::White {
+            king_square = Square::E1;
+            kingside_index = 0;
+            queenside_index = 1;
+        } else {
+            king_square = Square::E8;
+            kingside_index = 2;
+            queenside_index = 3;
+        }
+        if board.meta.castle_rights[kingside_index] {
+            if !board.is_attacked(&king_square, mover) 
+                && !board.is_attacked(&Square::from_int(king_square as usize + 1), mover)
+                && (board.get_piece(&Square::from_int(king_square as usize + 1)) == None)
+                && !board.is_attacked(&Square::from_int(king_square as usize + 2), mover)
+                && (board.get_piece(&Square::from_int(king_square as usize + 2)) == None) {
+                castle_moves.push( Move {
+                    color: board.meta.player,
+                    origin: king_square,
+                    piece: Piece::King,
+                    destination: Square::from_int(king_square as usize + 2),
+                    promote_type: None,
+                    is_castle: true,
+                })
+            } 
+        }
+        if board.meta.castle_rights[queenside_index] {
+            if !board.is_attacked(&king_square, mover) 
+                && !board.is_attacked(&Square::from_int(king_square as usize - 1), mover)
+                && (board.get_piece(&Square::from_int(king_square as usize - 1)) == None)
+                && !board.is_attacked(&Square::from_int(king_square as usize - 2), mover) 
+                && (board.get_piece(&Square::from_int(king_square as usize - 2)) == None) 
+                // Note that b8 being under attack is ok to castle still.
+                && (board.get_piece(&Square::from_int(king_square as usize - 3)) == None) {
+                castle_moves.push( Move {
+                    color: board.meta.player,
+                    origin: king_square,
+                    piece: Piece::King,
+                    destination: Square::from_int(king_square as usize - 2),
+                    promote_type: None,
+                    is_castle: true,
+                })
+            } 
+        }
+
+        castle_moves
+    }
+
+    pub fn generate_legal_moves(board: &Board) -> Vec<Move> {
+        let mut all_moves = Vec::new();
+        let mover = board.meta.player;
+
+        for i in 0..64 {
+            let sq = Square::from_int(i);
+            let piece = board.get_piece(&sq);
+            if piece != None && piece.unwrap().1 == mover {
+                let mut moves = match piece.unwrap().0 {
+                    Piece::Pawn => Move::generate_all_pawn_moves(board, &sq),
+                    Piece::Knight => Move::generate_all_knight_moves(board, &sq),
+                    Piece::Bishop => Move::generate_all_bishop_moves(board, &sq, mover),
+                    Piece::Rook => Move::generate_all_rook_moves(board, &sq, mover),
+                    Piece::Queen => Move::generate_all_queen_moves(board, &sq, mover),
+                    Piece::King => Move::generate_all_king_moves(board, &sq),
+                };
+                all_moves.append(&mut moves);
+            }
+        }
+
+        all_moves.append(&mut Move::generate_castles(board));
+
+        
+        for i in (0..(all_moves.len())).rev() {
+            let mut board_state = board.clone();
+            board_state.process_move(&all_moves[i]);
+            if board_state.is_attacked(&board_state.get_king(&mover), mover) {
+                all_moves.remove(i);
+            }
+        }
+
+        all_moves
+    }
+  
+    pub fn generate_random_move(board: &Board) -> Move {
+        let legal_moves = Move::generate_legal_moves(board);
+        let rand = rand::random::<u64>() % legal_moves.len() as u64;
+        legal_moves[rand as usize]
+    }
 }
