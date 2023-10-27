@@ -274,7 +274,7 @@ impl Board {
                     }
                 }
             }
-            println!("");
+            println!();
         }
         println!("Player: {:?}", self.meta.player);
         println!("Castle Rights: {:?}", self.meta.castle_rights);
@@ -299,14 +299,14 @@ impl Board {
             if bitboard.to_integer() == 0 {
                 return None;
             } 
-            return self.get_piece(&bitboard.find_msb());
+            self.get_piece(&bitboard.find_msb())
         // Negative rays.
         } else {
             let bitboard = Move::get_negative_ray_attacks(self, &sq, dir, color);
             if bitboard.to_integer() == 0 {
                 return None;
             }
-            return self.get_piece(&bitboard.find_lsb());
+            self.get_piece(&bitboard.find_lsb())
         }
     }
 
@@ -326,14 +326,13 @@ impl Board {
             {
                 return true;
             }
-        } else {
-            if rank != 1 &&
-                (self.get_piece(&Square::from_int(*sq as usize - 7)) == Some((Piece::Pawn, not_mover)) ||
-                self.get_piece(&Square::from_int(*sq as usize - 9)) == Some((Piece::Pawn, not_mover)))
-            {
-                return true;
-            }
+        } else if rank != 1 &&
+            (self.get_piece(&Square::from_int(*sq as usize - 7)) == Some((Piece::Pawn, not_mover)) ||
+            self.get_piece(&Square::from_int(*sq as usize - 9)) == Some((Piece::Pawn, not_mover)))
+        {
+            return true;
         }
+        
         // Check for knight.
         // NWW
         if file >= 2 && rank <= 7 &&
@@ -450,7 +449,7 @@ impl Board {
         self.sides[mover as usize].switch(&half_move.origin, &half_move.destination);
         self.pieces[half_move.piece as usize].switch(&half_move.origin, &half_move.destination);
 
-        if half_move.promote_type != None {
+        if half_move.promote_type.is_some() {
             self.pieces[Piece::Pawn as usize].set_zero(&half_move.destination);
             self.pieces[half_move.promote_type.unwrap() as usize].set_one(&half_move.destination);
         }
@@ -513,7 +512,7 @@ impl Board {
 
         self.meta.player = not_mover;
 
-        if captured == None {
+        if captured.is_none() {
             self.meta.fifty_move += 1;
         } else {
             self.meta.fifty_move = 0;

@@ -1,4 +1,3 @@
-use crate::core::constants::PIECETYPE_COUNT;
 use crate::core::structs::Direction;
 use crate::game::piece::Piece as Piece; 
 use crate::game::bitboard::Bitboard as Bitboard;
@@ -6,7 +5,6 @@ use crate::core::structs::Square as Square;
 use crate::core::structs::Color as Color;
 use crate::game::board::Board as Board;
 use crate::game::magic::*;
-use rand::prelude::*;
 
 // Move represents a single move from one side on a chessboard. This is otherwise called a "half-move."
 #[derive(Debug, Copy, Clone)]
@@ -200,7 +198,7 @@ impl Move {
         let mut bishop_squares = [northwest, northeast, southwest, southeast].concat();
         let mut bishop_moves = Vec::new();
 
-        while bishop_squares.len() != 0 {
+        while !bishop_squares.is_empty() {
             bishop_moves.push( Move {
                 color: mover,
                 origin: *origin,
@@ -225,7 +223,7 @@ impl Move {
         let mut rook_squares = [west, north, east, south].concat();
         let mut rook_moves = Vec::new();
 
-        while rook_squares.len() != 0 {
+        while !rook_squares.is_empty() {
             rook_moves.push( Move {
                 color: mover,
                 origin: *origin,
@@ -254,7 +252,7 @@ impl Move {
         let mut queen_squares = [west, north, east, south, northwest, northeast, southwest, southeast].concat();
         let mut queen_moves = Vec::new();
 
-        while queen_squares.len() != 0 {
+        while !queen_squares.is_empty() {
             queen_moves.push( Move {
                 color: mover,
                 origin: *origin,
@@ -332,7 +330,7 @@ impl Move {
             }
         }
 
-        while pawn_squares.len() != 0 {
+        while !pawn_squares.is_empty() {
             // Check if the move is a promotion.
             if (origin.get_rank() == 7 && mover == Color::White) || (origin.get_rank() == 2 && mover == Color::Black) {
                 let destination = pawn_squares.pop().unwrap();
@@ -422,7 +420,7 @@ impl Move {
 
         let mut king_moves = Vec::new();
 
-        while king_squares.len() != 0 {
+        while !king_squares.is_empty() {
             let king_square = king_squares.pop().unwrap();
             if !board.sides[mover as usize].is_piece(&king_square) {
                 king_moves.push( Move {
@@ -444,9 +442,9 @@ impl Move {
         let mover = board.meta.player;
         
         let mut castle_moves = Vec::new();
-        let mut king_square = Square::A1;
-        let mut kingside_index = 0;
-        let mut queenside_index = 0;
+        let king_square;
+        let kingside_index;
+        let queenside_index;
 
         if mover == Color::White {
             king_square = Square::E1;
@@ -457,43 +455,41 @@ impl Move {
             kingside_index = 2;
             queenside_index = 3;
         }
-        if board.meta.castle_rights[kingside_index] {
-            if !board.is_attacked(&king_square, mover) 
-                && !board.is_attacked(&Square::from_int(king_square as usize + 1), mover)
-                && (board.get_piece(&Square::from_int(king_square as usize + 1)) == None)
-                && !board.is_attacked(&Square::from_int(king_square as usize + 2), mover)
-                && (board.get_piece(&Square::from_int(king_square as usize + 2)) == None) {
-                castle_moves.push( Move {
-                    color: board.meta.player,
-                    origin: king_square,
-                    piece: Piece::King,
-                    destination: Square::from_int(king_square as usize + 2),
-                    promote_type: None,
-                    is_castle: true,
-                })
-            } 
-        }
-        if board.meta.castle_rights[queenside_index] {
-            if !board.is_attacked(&king_square, mover) 
-                && !board.is_attacked(&Square::from_int(king_square as usize - 1), mover)
-                && (board.get_piece(&Square::from_int(king_square as usize - 1)) == None)
-                && !board.is_attacked(&Square::from_int(king_square as usize - 2), mover) 
-                && (board.get_piece(&Square::from_int(king_square as usize - 2)) == None) 
-                // Note that b8 being under attack is ok to castle still.
-                && (board.get_piece(&Square::from_int(king_square as usize - 3)) == None) {
-                castle_moves.push( Move {
-                    color: board.meta.player,
-                    origin: king_square,
-                    piece: Piece::King,
-                    destination: Square::from_int(king_square as usize - 2),
-                    promote_type: None,
-                    is_castle: true,
-                })
-            } 
-        }
-
+        if board.meta.castle_rights[kingside_index] 
+            && !board.is_attacked(&king_square, mover) 
+            && !board.is_attacked(&Square::from_int(king_square as usize + 1), mover)
+            && (board.get_piece(&Square::from_int(king_square as usize + 1)).is_none())
+            && !board.is_attacked(&Square::from_int(king_square as usize + 2), mover)
+            && (board.get_piece(&Square::from_int(king_square as usize + 2)).is_none()) {
+            castle_moves.push( Move {
+                color: board.meta.player,
+                origin: king_square,
+                piece: Piece::King,
+                destination: Square::from_int(king_square as usize + 2),
+                promote_type: None,
+                is_castle: true,
+            })
+        } 
+        
+        if board.meta.castle_rights[queenside_index] 
+            && !board.is_attacked(&king_square, mover) 
+            && !board.is_attacked(&Square::from_int(king_square as usize - 1), mover)
+            && (board.get_piece(&Square::from_int(king_square as usize - 1)).is_none())
+            && !board.is_attacked(&Square::from_int(king_square as usize - 2), mover) 
+            && (board.get_piece(&Square::from_int(king_square as usize - 2)).is_none()) 
+            // Note that b8 being under attack is ok to castle still.
+            && (board.get_piece(&Square::from_int(king_square as usize - 3)).is_none()) {
+            castle_moves.push( Move {
+                color: board.meta.player,
+                origin: king_square,
+                piece: Piece::King,
+                destination: Square::from_int(king_square as usize - 2),
+                promote_type: None,
+                is_castle: true,
+            })
+        } 
         castle_moves
-    }
+}
 
     pub fn generate_legal_moves(board: &Board) -> Vec<Move> {
         let mut all_moves = Vec::new();
@@ -502,7 +498,7 @@ impl Move {
         for i in 0..64 {
             let sq = Square::from_int(i);
             let piece = board.get_piece(&sq);
-            if piece != None && piece.unwrap().1 == mover {
+            if piece.is_some() && piece.unwrap().1 == mover {
                 let mut moves = match piece.unwrap().0 {
                     Piece::Pawn => Move::generate_all_pawn_moves(board, &sq),
                     Piece::Knight => Move::generate_all_knight_moves(board, &sq),

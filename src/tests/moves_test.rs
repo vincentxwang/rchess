@@ -4,11 +4,9 @@ mod tests {
     use crate::core::structs::Color as Color;
     use crate::core::structs::Square as Square;
     use crate::game::board::Board;
-    use crate::game::magic::RAY_ATTACKS;
     use crate::game::piece::Piece as Piece;
     use crate::game::moves::Move as Move;
     use std::collections::HashMap as HashMap;
-    use crate::core::structs::Direction as Direction;
 
     
     #[test]
@@ -22,13 +20,6 @@ mod tests {
             assert_eq!(pawna2_a4.promote_type, None);
             assert_eq!(pawna2_a4.piece, Piece::Pawn);
     }
-
-    /*
-    #[test]
-    fn test_generate_all_knight_moves() {
-        assert_eq!(Move::generate_all_knight_moves(&, &Square::A2).len(), 4);
-    }
-     */
 
     fn print_step_depth(boards: Vec<Board>) -> Vec<Board>{
         let mut new_boards = Vec::new();
