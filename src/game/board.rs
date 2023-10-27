@@ -3,7 +3,7 @@ use crate::game::bitboard::Bitboard as Bitboard;
 use crate::core::constants::*;
 use crate::core::structs::Color as Color;
 use crate::core::structs::Square as Square;
-use crate::game::moves::Move as Move;
+use crate::game::movegen::moves::Move as Move;
 use super::piece::Piece;
 
 #[derive(Debug, Copy, Clone)]
@@ -330,7 +330,7 @@ impl Board {
             (self.get_piece(&Square::from_int(*sq as usize - 7)) == Some((Piece::Pawn, not_mover)) ||
             self.get_piece(&Square::from_int(*sq as usize - 9)) == Some((Piece::Pawn, not_mover)))
         {
-            return true;
+                return true;
         }
         
         // Check for knight.

@@ -4,7 +4,7 @@ use crate::game::bitboard::Bitboard as Bitboard;
 use crate::core::structs::Square as Square;
 use crate::core::structs::Color as Color;
 use crate::game::board::Board as Board;
-use crate::game::magic::*;
+use crate::game::movegen::magic::*;
 
 // Move represents a single move from one side on a chessboard. This is otherwise called a "half-move."
 #[derive(Debug, Copy, Clone)]

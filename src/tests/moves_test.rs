@@ -5,7 +5,7 @@ mod tests {
     use crate::core::structs::Square as Square;
     use crate::game::board::Board;
     use crate::game::piece::Piece as Piece;
-    use crate::game::moves::Move as Move;
+    use crate::game::movegen::moves::Move as Move;
     use std::collections::HashMap as HashMap;
 
     

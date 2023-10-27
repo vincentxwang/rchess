@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod tests {
-    use crate::game::magic::*;
+    use crate::game::movegen::magic::*;
     use crate::core::structs::Square as Square;
     use crate::game::board::Board as Board;
     use crate::core::structs::Direction as Direction;
-    use crate::game::moves::Move as Move;
+    use crate::game::movegen::moves::Move as Move;
     
     #[test]
     fn test_north_ray_attacks() {

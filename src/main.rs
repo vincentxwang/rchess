@@ -4,7 +4,7 @@ use crate::game::board::Board;
 pub mod game;
 pub mod core;
 pub mod tests;
-use crate::game::moves::Move as Move;
+use crate::game::movegen::moves::Move as Move;
 use crate::core::structs::Square as Square;
 use crate::core::structs::Color as Color;
 use crate::game::piece::Piece as Piece;
