@@ -141,9 +141,27 @@ impl Square {
         Square::from_int((row as usize - 1) * 8 + col)
     }
 
+    pub fn to_str(&self) -> String {
+        self.get_file_name().to_string() + self.get_rank().to_string().as_str()
+    }
+
     // Returns an integer that represents the file (vertical). (0..7)
     pub fn get_file(&self) -> usize {
         *self as usize % 8
+    }
+
+    pub fn get_file_name(&self) -> &str {
+        match Square::get_file(self) {
+            0 => "A",
+            1 => "B",
+            2 => "C",
+            3 => "D",
+            4 => "E",
+            5 => "F",
+            6 => "G",
+            7 => "H",
+            _ => panic!("tried to get_file_name on an invalid square"),
+        }
     }
 
     // Returns an integer that represents the rank (horizontal). (1..8)
