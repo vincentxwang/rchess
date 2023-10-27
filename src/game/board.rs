@@ -47,9 +47,10 @@ impl Board {
             meta: BoardData {
                 player: Color::White,
                 castle_rights: [true, true, true, true],
+                // These are half moves.
                 fifty_move: 0,
                 en_passant_square: None,
-                full_moves: 0,
+                full_moves: 1,
             }
         }
     }
@@ -73,7 +74,7 @@ impl Board {
                 castle_rights: [false; 4],
                 fifty_move: 0,
                 en_passant_square: None,
-                full_moves: 0,
+                full_moves: 1,
             }
         }
     }
@@ -483,7 +484,10 @@ impl Board {
             self.meta.fifty_move = 0;
         }
 
-        self.meta.full_moves += 1;
+        if mover == Color::Black {
+            self.meta.full_moves += 1;
+        }
+
 
         if half_move.piece == Piece::Pawn {
             if mover == Color::White &&
