@@ -455,6 +455,41 @@ impl Board {
             self.pieces[half_move.promote_type.unwrap() as usize].set_one(&half_move.destination);
         }
 
+        if half_move.is_castle {
+            match half_move.destination {
+                Square::G1 => {
+                    self.pieces[Piece::Rook as usize].switch(&Square::H1, &Square::F1);
+                    self.sides[mover as usize].switch(&Square::H1, &Square::F1);
+                },
+                Square::C1 => {
+                    self.pieces[Piece::Rook as usize].switch(&Square::A1, &Square::D1);
+                    self.sides[mover as usize].switch(&Square::A1, &Square::D1);
+                }
+                Square::G8 => {
+                    self.pieces[Piece::Rook as usize].switch(&Square::H8, &Square::F8);
+                    self.sides[mover as usize].switch(&Square::H8, &Square::F8);
+                },
+                Square::C8 => {
+                    self.pieces[Piece::Rook as usize].switch(&Square::A8, &Square::D8);
+                    self.sides[mover as usize].switch(&Square::A8, &Square::D8);
+                },
+                _ => panic!("bad castle!!!")
+            } 
+        }
+
+        if self.meta.en_passant_square.is_some() {
+            if half_move.piece == Piece::Pawn &&
+                self.meta.en_passant_square.unwrap() == half_move.destination {
+                if mover == Color::White {
+                    self.pieces[Piece::Pawn as usize].set_zero(&Square::from_int(half_move.destination as usize - 8));
+                    self.sides[not_mover as usize].set_zero(&Square::from_int(half_move.destination as usize - 8));
+                } else {
+                    self.pieces[Piece::Pawn as usize].set_zero(&Square::from_int(half_move.destination as usize + 8));
+                    self.sides[not_mover as usize].set_zero(&Square::from_int(half_move.destination as usize + 8));
+                }
+            }
+        }
+
         // Process meta.
         if half_move.origin == Square::H1 || half_move.destination == Square::H1 {
             self.meta.castle_rights[0] = false;
