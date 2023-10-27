@@ -122,6 +122,10 @@ fn compute_southwest_ray_attacks() -> [Bitboard; 64] {
             attacks[rank * 8 + file] = temp_southwest;
             temp_southwest.shift_right(8);
         }
+        if file == 0 {
+            break;
+        }
+        southwest.toggle_lsb();
         southwest.shift_right(1);
     }
     attacks
