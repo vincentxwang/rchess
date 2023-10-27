@@ -285,15 +285,15 @@ impl Move {
             }
             let northwest_square = Square::from_int(*origin as usize + 7);
             if origin.get_file() != 0 && 
-                board.sides[Color::Black as usize].is_piece(&northwest_square) || 
-                board.meta.en_passant_square == Some(northwest_square) 
+                (board.sides[Color::Black as usize].is_piece(&northwest_square) || 
+                board.meta.en_passant_square == Some(northwest_square))
             {
                 pawn_squares.push(northwest_square);
             }
             let northeast_square = Square::from_int(*origin as usize + 9);
             if origin.get_file() != 7 && 
-                board.sides[Color::Black as usize].is_piece(&northeast_square) || 
-                board.meta.en_passant_square == Some(northeast_square) 
+                (board.sides[Color::Black as usize].is_piece(&northeast_square) || 
+                board.meta.en_passant_square == Some(northeast_square))
             {
             pawn_squares.push(northeast_square);
             } 
@@ -313,17 +313,17 @@ impl Move {
             }
             let southwest_square = Square::from_int(*origin as usize - 9);
             if origin.get_file() != 0 && 
-                board.sides[Color::White as usize].is_piece(&southwest_square) || 
-                board.meta.en_passant_square == Some(southwest_square) 
+                (board.sides[Color::White as usize].is_piece(&southwest_square) || 
+                board.meta.en_passant_square == Some(southwest_square))
             {
                 pawn_squares.push(southwest_square);
             }
             let southeast_square = Square::from_int(*origin as usize - 7);
             if origin.get_file() != 7 && 
-                board.sides[Color::White as usize].is_piece(&southeast_square) || 
-                board.meta.en_passant_square == Some(southeast_square) 
+                (board.sides[Color::White as usize].is_piece(&southeast_square) || 
+                board.meta.en_passant_square == Some(southeast_square))
             {
-            pawn_squares.push(southeast_square);
+                pawn_squares.push(southeast_square);
             } 
             // One square forward.
             if !all_pieces.is_piece(&Square::from_int(*origin as usize - 8)) 
@@ -332,18 +332,22 @@ impl Move {
             }
         }
 
-        // All non-promotion moves!
         while pawn_squares.len() != 0 {
             // Check if the move is a promotion.
             if (origin.get_rank() == 7 && mover == Color::White) || (origin.get_rank() == 2 && mover == Color::Black) {
                 let destination = pawn_squares.pop().unwrap();
-                for i in 0..PIECETYPE_COUNT {
+                for i in [
+                    Piece::Knight,
+                    Piece::Bishop,
+                    Piece::Rook,
+                    Piece::Queen,
+                ] {
                     pawn_moves.push( Move {
                         color: mover,
                         origin: *origin,
                         piece: Piece::Pawn,
                         destination: destination,
-                        promote_type: Some(Piece::from_id(i)),
+                        promote_type: Some(i),
                         is_castle: false,
                     })
                 }

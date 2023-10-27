@@ -44,5 +44,10 @@ mod tests {
         assert_eq!(Square::distance(Square::A2, Square::F2), 5);
         assert_eq!(Square::distance(Square::A1, Square::H8), 14);
     }
+
+    #[test]
+    fn test_to_string() {
+        assert_eq!(Square::A6.to_str(), "A6");
+    }
     
 }
