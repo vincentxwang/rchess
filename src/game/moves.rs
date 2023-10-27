@@ -277,8 +277,9 @@ impl Move {
 
         // Check if white pawn on 2nd rank.
         if mover == Color::White {
-
-            if origin.get_rank() == 2 
+            if origin.get_rank() == 2 && 
+                !all_pieces.is_piece(&Square::from_int(*origin as usize + 8)) &&
+                !all_pieces.is_piece(&Square::from_int(*origin as usize + 16))
             {
                 pawn_squares.push(Square::from_int(*origin as usize + 2 * 8));
             }
@@ -304,7 +305,9 @@ impl Move {
         
         } else {
             
-            if origin.get_rank() == 7 
+            if origin.get_rank() == 7 &&
+            !all_pieces.is_piece(&Square::from_int(*origin as usize - 8)) &&
+            !all_pieces.is_piece(&Square::from_int(*origin as usize - 16))
             {
                 pawn_squares.push(Square::from_int(*origin as usize - 2 * 8));
             }
