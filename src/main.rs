@@ -282,6 +282,6 @@ fn main() {
 
     //println!("{:?}", Move::generate_random_move(&test1));
 
-    println!("{:?}", RAY_ATTACKS[Direction::Southeast as usize][Square::C8 as usize].print_bitboard());
+    // println!("{:?}", RAY_ATTACKS[Direction::Southeast as usize][Square::C8 as usize].print_bitboard());
 
 }
