@@ -3,12 +3,13 @@ pub mod pst;
 
 use std::ops::Add;
 use std::ops::Sub;
+use std::cmp::Ordering;
 use crate::core::structs::Color;
 use crate::game::board::Board;
 
 
-#[derive(Debug)]
-pub struct Score(i16);
+#[derive(Debug, Eq, Copy, Clone)]
+pub struct Score(pub i16);
 
 impl Score {
 
@@ -42,5 +43,23 @@ impl Sub for Score {
 
     fn sub(self, other: Score) -> Score {
         Score(self.0 - other.0)
+    }
+}
+
+impl Ord for Score {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.0.cmp(&other.0)
+    }
+}
+
+impl PartialOrd for Score {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for Score {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
     }
 }

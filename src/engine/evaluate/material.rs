@@ -1,8 +1,4 @@
-use crate::game::{
-    board::Board,
-    piece::Piece,
-};
-use crate::core::structs::Color;
+use crate::game::piece::Piece;
 use crate::engine::evaluate::Score;
 
 
