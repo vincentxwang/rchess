@@ -33,7 +33,8 @@ impl Move {
 
         let promotion = {
             let next = str_chrs.next();
-            if next.is_some() {
+            // Ensures that '\n' is not taken as a character!
+            if next.is_some_and(|x| x != 0xA as char) {
                 Some(Piece::from_code(next.unwrap().to_ascii_uppercase()))
             } else {
                 None
