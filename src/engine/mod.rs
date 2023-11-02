@@ -1,13 +1,9 @@
-use std::sync::Mutex;
 use crate::{game::{board::Board, movegen::moves::Move}, 
     core::structs::Color};
 use crate::engine::evaluate::Score;
 
 pub mod evaluate;
 
-lazy_static! {
-    static ref bestMove: Mutex<Vec<Move>> = Mutex::new(vec![]);
-}
 
 pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, player: Color) -> Score {
     let all_moves = Move::generate_legal_moves(node);
