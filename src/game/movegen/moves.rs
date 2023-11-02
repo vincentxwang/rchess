@@ -70,7 +70,7 @@ impl Move {
 
         let mut is_castle = false;
 
-        if piece == Piece::King && Square::distance(origin_square, destination_square) > 1 {
+        if piece == Piece::King && Square::horizontal_distance(origin_square, destination_square) > 1 {
             is_castle = true;
         }
 
