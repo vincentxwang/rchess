@@ -173,6 +173,16 @@ impl Square {
         ((sq1.get_rank() as i32 - sq2.get_rank() as i32).abs() + (sq2.get_file() as i32 - sq1.get_file() as i32).abs()) as usize
     }
 
+    // Distance along the file from two squares
+    pub fn vertical_distance(sq1: Square, sq2: Square) -> usize {
+        (sq1.get_rank() as i32 - sq2.get_rank() as i32).abs() as usize
+    }
+
+    // Distance along the rank from two squares
+    pub fn horizontal_distance(sq1: Square, sq2: Square) -> usize {
+        (sq1.get_file() as i32 - sq2.get_file() as i32).abs() as usize
+    }
+
     // Gets square that is rank away and file away from another square.
     // Note that sign_x, sign_y take on false if the respective coordinate is supposed to be negative, and true if the respective coordinate 
     // is supposed to be positive. I made it this way because I couldn't add an isize to a usize.
