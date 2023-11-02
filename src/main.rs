@@ -3,6 +3,8 @@ extern crate lazy_static;
 use crate::engine::alphabeta;
 use crate::engine::best_move;
 use crate::game::board::Board;
+use std::io;
+use std::string;
 pub mod game;
 pub mod core;
 pub mod tests;
@@ -16,11 +18,32 @@ use crate::engine::evaluate::material;
 
 fn main() {
 
+    static PLAYER_IS_WHITE: bool = false;
 
-    let test1 = Board::from_fen("rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1").unwrap();
+    static ENGINE_COLOR: Color = Color::White;
 
-    test1.print_board();
-    println!("{:?}", alphabeta(&test1, 5, Score(-30001), Score(30001), Color::Black));
-    println!("{:?}", best_move())
+    let mut game = Board::new();
+
+    while Score::get_score(&game) != Score(30000) && Score::get_score(&game) != Score(-30000) {
+        if !PLAYER_IS_WHITE && game.meta.full_moves == 1 {
+            game.print_board();
+            // alphabeta(&game, 4, Score(-30001), Score(30001), Color::White);
+            let play = best_move(&game, 4);
+            println!("engine plays: {:?}", play);
+            game.process_move(&play);
+        }
+        game.print_board();
+        println!("play a move!");
+        let mut player_move = String::new();
+        io::stdin().read_line(&mut player_move).unwrap();
+        let player_move = Move::from_uci(&game, &player_move);
+        game.process_move(&player_move);
+        game.print_board();
+
+        //alphabeta(&game, 4, Score(-30001), Score(30001), ENGINE_COLOR);
+        let play = best_move(&game, 4);
+        println!("engine plays: {:?}", play);
+        game.process_move(&play);
+    }
 
 }
