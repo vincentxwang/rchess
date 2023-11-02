@@ -117,7 +117,7 @@ impl Board {
         let mut row: u8 = 7;
         let mut col: u8 = 0;
 
-        while true {
+        loop {
             let chr = fen_chars
                 .next()
                 .ok_or("incomplete FEN string");
