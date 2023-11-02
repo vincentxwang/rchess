@@ -57,7 +57,12 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
 
 pub fn best_move(board: &Board, depth: usize) -> Move {
     let mut current_best_move: Option<Move> = None;
-    let mut current_best_eval = Score(-30001);
+
+    let mut current_best_eval = match board.meta.player {
+        Color::White => Score(-30001),
+        Color::Black => Score(30001),
+    };
+
     for candidate_move in Move::generate_legal_moves(&board) {
         let mut new_board = board.clone();
         new_board.process_move(&candidate_move);
@@ -71,8 +76,12 @@ pub fn best_move(board: &Board, depth: usize) -> Move {
             new_eval >= current_best_eval {
                     current_best_move = Some(candidate_move);
                     current_best_eval = new_eval;
-                }
-            
+        }
+        if board.meta.player == Color::Black && 
+            new_eval <= current_best_eval {
+                    current_best_move = Some(candidate_move);
+                    current_best_eval = new_eval;
+        }     
     }
     println!("{:?}", current_best_eval);
     current_best_move.unwrap()
