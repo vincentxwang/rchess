@@ -1,6 +1,7 @@
 use crate::{game::{board::Board, movegen::moves::Move}, 
     core::structs::Color};
 use crate::engine::evaluate::Score;
+use crate::engine::zobrist::*;
 
 pub mod evaluate;
 pub mod zobrist;
@@ -19,6 +20,11 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
     if depth == 0 {
         return Score::get_score(node);
     } 
+
+    if TRANSPOSITION_TABLE.lock().unwrap().contains_key(&node.meta.zobrist) {
+        println!("yay!");
+        return TRANSPOSITION_TABLE.lock().unwrap()[&node.meta.zobrist];
+    }
     
     // if player is maximizing!
     if player == Color::White {
@@ -27,6 +33,7 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
             let mut new_board = node.clone();
             new_board.process_move(&move_candidate);
             let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::Black);
+            TRANSPOSITION_TABLE.lock().unwrap().insert(new_board.meta.zobrist, eval);
             max_eval = std::cmp::max(max_eval, eval);
             alpha = std::cmp::max(eval, alpha);
             
@@ -41,6 +48,7 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
             let mut new_board = node.clone();
             new_board.process_move(&move_candidate);
             let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::White);
+            TRANSPOSITION_TABLE.lock().unwrap().insert(new_board.meta.zobrist, eval);
             min_eval = std::cmp::min(min_eval, eval);
             beta = std::cmp::min(beta, eval);
             if beta <= alpha {

@@ -1,18 +1,22 @@
 // zobrist.rs provides Zobrist hashing and maintains a global transposition table.
 
 use rand::Rng;
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Write, BufReader, BufRead};
+use std::sync::Mutex;
 
+use crate::engine::evaluate::Score;
 use crate::game::movegen::moves::Move;
 use crate::{game::board::Board, core::structs::{Color, Square}};
 
 lazy_static! {
     pub static ref ZOBRIST_TABLE: [[[u64; 64]; 6]; 2] = Zobrist::get_zobrist_constants().unwrap();
     pub static ref BLACK_TO_MOVE: [u64; 1] = [13023143897365832559];
+    pub static ref TRANSPOSITION_TABLE: Mutex<HashMap<Zobrist, Score>> = Mutex::new(HashMap::new());
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Eq, Hash, PartialEq)]
 pub struct Zobrist(pub u64);
 
 impl Zobrist {
