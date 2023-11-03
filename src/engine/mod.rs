@@ -3,7 +3,7 @@ use crate::{game::{board::Board, movegen::moves::Move},
 use crate::engine::evaluate::Score;
 
 pub mod evaluate;
-
+pub mod zobrist;
 
 pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, player: Color) -> Score {
     let all_moves = Move::generate_legal_moves(node);

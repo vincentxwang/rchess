@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate lazy_static;
 
+use engine::zobrist;
+
 use crate::engine::best_move;
 use crate::game::board::Board;
 use std::io;
@@ -10,9 +12,7 @@ pub mod core;
 pub mod tests;
 pub mod engine;
 use crate::game::movegen::moves::Move as Move;
-
 use crate::core::structs::Color as Color;
-
 use crate::engine::evaluate::Score;
 
 fn read_i32() -> i32 {
@@ -21,7 +21,9 @@ fn read_i32() -> i32 {
 }
 
 fn main() {
-
+    let mut game = Board::new();
+    println!("{:?}", crate::engine::zobrist::zobrist_hash(&game));
+    /*
     println!("pick a player color! (B: 1 or W: 0)");
  
     println!("Input desired color");
@@ -61,5 +63,6 @@ fn main() {
         game.process_move(&play);
         game.print_board();
     }
+    */
 
 }
