@@ -1,9 +1,8 @@
 #[macro_use]
 extern crate lazy_static;
 
-use engine::zobrist;
-
 use crate::engine::best_move;
+use crate::engine::zobrist::Zobrist;
 use crate::game::board::Board;
 use std::io;
 
@@ -22,8 +21,8 @@ fn read_i32() -> i32 {
 
 fn main() {
     let mut game = Board::new();
-    println!("{:?}", crate::engine::zobrist::zobrist_hash(&game));
-    /*
+    println!("{:?}", Zobrist::zobrist_hash(&game));
+    
     println!("pick a player color! (B: 1 or W: 0)");
  
     println!("Input desired color");
@@ -57,12 +56,14 @@ fn main() {
         let player_move = Move::from_uci(&game, &player_move);
         game.process_move(&player_move);
         game.print_board();
+        println!("{:?}", game.meta.zobrist);
 
         let play = best_move(&game, number1);
         println!("engine plays: {:?}", play);
         game.process_move(&play);
         game.print_board();
+        println!("{:?}", game.meta.zobrist);
     }
-    */
+    
 
 }

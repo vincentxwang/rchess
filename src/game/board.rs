@@ -1,10 +1,12 @@
 use crate::core::structs::Direction;
+use crate::engine::zobrist::Zobrist;
 use crate::game::bitboard::Bitboard as Bitboard;
 use crate::core::constants::*;
 use crate::core::structs::Color as Color;
 use crate::core::structs::Square as Square;
 use crate::game::movegen::moves::Move as Move;
 use super::piece::Piece;
+use crate::engine::zobrist::*;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Board {
@@ -26,6 +28,7 @@ pub struct BoardData {
     pub fifty_move: u8, 
     pub en_passant_square: Option<Square>,
     pub full_moves: u8,
+    pub zobrist: Zobrist,
 }
 
 impl Board {
@@ -51,6 +54,8 @@ impl Board {
                 fifty_move: 0,
                 en_passant_square: None,
                 full_moves: 1,
+                // Number obtained from running zobrist_hash on Board::new()
+                zobrist: Zobrist(15988586886729190057),
             }
         }
     }
@@ -75,6 +80,7 @@ impl Board {
                 fifty_move: 0,
                 en_passant_square: None,
                 full_moves: 1,
+                zobrist: Zobrist(0),
             }
         }
     }
@@ -109,6 +115,8 @@ impl Board {
                 fifty_move: 0,
                 en_passant_square: None,
                 full_moves: 0,
+                // Temporarily, this is 0. We update it at the end.
+                zobrist: Zobrist(0),
             }
         };
 
@@ -230,6 +238,8 @@ impl Board {
                 panic!("expected number as second digit of move counter");
             }
         };
+
+        board.meta.zobrist = Zobrist::zobrist_hash(&board);
 
         Ok(board)
     }  
@@ -433,10 +443,27 @@ impl Board {
         false
     }
 
+    pub fn update_zobrist_hash(&mut self, move_played: &Move) {
+        let moved_piece = self.get_piece(&move_played.origin).unwrap();
+        let captured_piece = self.get_piece(&move_played.destination);
+
+        self.meta.zobrist.0 ^= ZOBRIST_TABLE[moved_piece.1 as usize][moved_piece.0 as usize][move_played.origin as usize];
+        self.meta.zobrist.0 ^= ZOBRIST_TABLE[moved_piece.1 as usize][moved_piece.0 as usize][move_played.destination as usize];
+
+        if captured_piece.is_some() {
+            let captured_piece = captured_piece.unwrap();
+            self.meta.zobrist.0 ^= ZOBRIST_TABLE[captured_piece.1 as usize][captured_piece.0 as usize][move_played.destination as usize];
+        }
+    }
+
     pub fn process_move(&mut self, half_move: &Move) {
         if half_move.color != self.meta.player {
             panic!("move color disagrees with board player color!")
         }
+
+        // Process Zobrist hashing.
+        self.update_zobrist_hash(half_move);
+
         let mover = half_move.color;
         let not_mover = Color::not(mover);
         
