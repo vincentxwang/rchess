@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate lazy_static;
 
-use crate::engine::best_move;
+use crate::engine::root_alphabeta;
 use crate::engine::zobrist::Zobrist;
 use crate::game::board::Board;
 use std::io;
@@ -43,7 +43,7 @@ fn main() {
     // Engine plays first, if White.
     if engine_color == Color::White && game.meta.full_moves == 1 {
         game.print_board();
-        let play = best_move(&game, number1);
+        let play = root_alphabeta(&game, number1);
         println!("engine plays: {:?}", play);
         game.process_move(&play);
         game.print_board();
@@ -58,7 +58,7 @@ fn main() {
         game.print_board();
         println!("{:?}", game.meta.zobrist);
 
-        let play = best_move(&game, number1);
+        let play = root_alphabeta(&game, number1);
         println!("engine plays: {:?}", play);
         game.process_move(&play);
         game.print_board();

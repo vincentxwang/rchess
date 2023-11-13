@@ -33,7 +33,6 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
             let mut new_board = node.clone();
             new_board.process_move(&move_candidate);
             let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::Black);
-            TRANSPOSITION_TABLE.lock().unwrap().insert(new_board.meta.zobrist, eval);
             max_eval = std::cmp::max(max_eval, eval);
             alpha = std::cmp::max(eval, alpha);
             
@@ -48,7 +47,6 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
             let mut new_board = node.clone();
             new_board.process_move(&move_candidate);
             let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::White);
-            TRANSPOSITION_TABLE.lock().unwrap().insert(new_board.meta.zobrist, eval);
             min_eval = std::cmp::min(min_eval, eval);
             beta = std::cmp::min(beta, eval);
             if beta <= alpha {
@@ -59,7 +57,7 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
     }
 }
 
-pub fn best_move(board: &Board, depth: usize) -> Move {
+pub fn root_alphabeta(board: &Board, depth: usize) -> Move {
     let mut current_best_move: Option<Move> = None;
 
     let mut current_best_eval = match board.meta.player {
@@ -75,7 +73,10 @@ pub fn best_move(board: &Board, depth: usize) -> Move {
             depth - 1, 
             Score(-30001), 
             Score(30001),
-            Color::White);
+            Color::not(board.meta.player));
+
+        TRANSPOSITION_TABLE.lock().unwrap().insert(new_board.meta.zobrist, new_eval);
+
         if board.meta.player == Color::White && 
             new_eval >= current_best_eval {
                     current_best_move = Some(candidate_move);
