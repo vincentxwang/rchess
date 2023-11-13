@@ -7,7 +7,7 @@ use std::io::{Write, BufReader, BufRead};
 use std::sync::Mutex;
 
 use crate::engine::evaluate::Score;
-use crate::game::movegen::moves::Move;
+
 use crate::{game::board::Board, core::structs::{Color, Square}};
 
 lazy_static! {

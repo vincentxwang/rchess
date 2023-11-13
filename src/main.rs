@@ -20,7 +20,7 @@ fn read_i32() -> i32 {
 }
 
 fn main() {
-    let mut game = Board::new();
+    let game = Board::new();
     println!("{:?}", Zobrist::zobrist_hash(&game));
     
     println!("pick a player color! (B: 1 or W: 0)");
