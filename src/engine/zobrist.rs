@@ -29,7 +29,7 @@ impl Zobrist {
                 for _k in 0..64 {
                     writeln!(output, "{}", get_random_u64());
                 }
-            }e
+            }
         }
         Ok(())
     }
