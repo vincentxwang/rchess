@@ -22,7 +22,6 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
     } 
 
     if TRANSPOSITION_TABLE.lock().unwrap().contains_key(&node.meta.zobrist) {
-        println!("yay!");
         return TRANSPOSITION_TABLE.lock().unwrap()[&node.meta.zobrist];
     }
     

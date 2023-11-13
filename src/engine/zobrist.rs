@@ -7,7 +7,6 @@ use std::io::{Write, BufReader, BufRead};
 use std::sync::Mutex;
 
 use crate::engine::evaluate::Score;
-
 use crate::{game::board::Board, core::structs::{Color, Square}};
 
 lazy_static! {
@@ -30,7 +29,7 @@ impl Zobrist {
                 for _k in 0..64 {
                     writeln!(output, "{}", get_random_u64());
                 }
-            }
+            }e
         }
         Ok(())
     }

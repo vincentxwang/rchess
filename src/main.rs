@@ -56,13 +56,11 @@ fn main() {
         let player_move = Move::from_uci(&game, &player_move);
         game.process_move(&player_move);
         game.print_board();
-        println!("{:?}", game.meta.zobrist);
 
         let play = root_alphabeta(&game, number1);
         println!("engine plays: {:?}", play);
         game.process_move(&play);
         game.print_board();
-        println!("{:?}", game.meta.zobrist);
     }
     
 
