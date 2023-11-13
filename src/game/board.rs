@@ -230,7 +230,7 @@ impl Board {
             let digit_1: u8 = fen_chars.next().ok_or("incomplete FEN string").unwrap().to_digit(10).unwrap() as u8;
             let possibly_digit_2 = fen_chars.next();
     
-            if possibly_digit_2 == None {
+            if possibly_digit_2.is_none() {
                 digit_1
             } else if possibly_digit_2.unwrap().is_ascii_digit() {
                 digit_1 * 10 + possibly_digit_2.unwrap().to_digit(10).unwrap() as u8
@@ -305,14 +305,14 @@ impl Board {
 
         // Positive rays.
         if dir as usize <= 3 {
-            let bitboard = Move::get_positive_ray_attacks(self, &sq, dir, color);
+            let bitboard = Move::get_positive_ray_attacks(self, sq, dir, color);
             if bitboard.to_integer() == 0 {
                 return None;
             } 
             self.get_piece(&bitboard.find_msb())
         // Negative rays.
         } else {
-            let bitboard = Move::get_negative_ray_attacks(self, &sq, dir, color);
+            let bitboard = Move::get_negative_ray_attacks(self, sq, dir, color);
             if bitboard.to_integer() == 0 {
                 return None;
             }
@@ -503,16 +503,13 @@ impl Board {
             } 
         }
 
-        if self.meta.en_passant_square.is_some() {
-            if half_move.piece == Piece::Pawn &&
-                self.meta.en_passant_square.unwrap() == half_move.destination {
-                if mover == Color::White {
-                    self.pieces[Piece::Pawn as usize].set_zero(&Square::from_int(half_move.destination as usize - 8));
-                    self.sides[not_mover as usize].set_zero(&Square::from_int(half_move.destination as usize - 8));
-                } else {
-                    self.pieces[Piece::Pawn as usize].set_zero(&Square::from_int(half_move.destination as usize + 8));
-                    self.sides[not_mover as usize].set_zero(&Square::from_int(half_move.destination as usize + 8));
-                }
+        if self.meta.en_passant_square.is_some() && half_move.piece == Piece::Pawn && self.meta.en_passant_square.unwrap() == half_move.destination {
+            if mover == Color::White {
+                self.pieces[Piece::Pawn as usize].set_zero(&Square::from_int(half_move.destination as usize - 8));
+                self.sides[not_mover as usize].set_zero(&Square::from_int(half_move.destination as usize - 8));
+            } else {
+                self.pieces[Piece::Pawn as usize].set_zero(&Square::from_int(half_move.destination as usize + 8));
+                self.sides[not_mover as usize].set_zero(&Square::from_int(half_move.destination as usize + 8));
             }
         }
 

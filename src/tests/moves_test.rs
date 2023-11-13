@@ -16,7 +16,7 @@ mod tests {
             assert_eq!(pawna2_a4.color, Color::White);
             assert_eq!(pawna2_a4.destination, Square::A4);
             assert_eq!(pawna2_a4.origin, Square::A2);
-            assert_eq!(pawna2_a4.is_castle, false);
+            assert!(!pawna2_a4.is_castle);
             assert_eq!(pawna2_a4.promote_type, None);
             assert_eq!(pawna2_a4.piece, Piece::Pawn);
     }
@@ -27,7 +27,7 @@ mod tests {
         for board in boards {
             let moves = Move::generate_legal_moves(&board);
             for turn in moves {
-                let mut new_board = board.clone();
+                let mut new_board = board;
                 new_board.process_move(&turn);
                 new_boards.push(new_board);    
                 let key = turn.origin.to_str() + turn.destination.to_str().as_str();
@@ -48,7 +48,7 @@ mod tests {
         for board in boards {
             let moves = Move::generate_legal_moves(&board);
             for turn in moves {
-                let mut new_board = board.clone();
+                let mut new_board = board;
                 new_board.process_move(&turn);
                 new_boards.push(new_board);             
             }

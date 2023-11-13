@@ -75,12 +75,12 @@ impl Move {
         }
 
         Move {
-            color: color,
-            piece: piece,
+            color,
+            piece,
             origin: origin_square,
             destination: destination_square,
             promote_type: promotion,
-            is_castle: is_castle,
+            is_castle,
         }
     }
     
@@ -135,8 +135,8 @@ impl Move {
 
         let mut knight_moves = Vec::new();
 
-        while knight_squares.len() != 0 {
-            let knight_square = knight_squares.pop().unwrap();
+        while let Some(knight_square) = knight_squares.pop() {
+            
             if !board.sides[mover as usize].is_piece(&knight_square) {
                 knight_moves.push( Move {
                     color: mover,
@@ -345,7 +345,7 @@ impl Move {
                         color: mover,
                         origin: *origin,
                         piece: Piece::Pawn,
-                        destination: destination,
+                        destination,
                         promote_type: Some(i),
                         is_castle: false,
                     })
@@ -421,8 +421,8 @@ impl Move {
 
         let mut king_moves = Vec::new();
 
-        while !king_squares.is_empty() {
-            let king_square = king_squares.pop().unwrap();
+        while let Some(king_square) = king_squares.pop() {
+            
             if !board.sides[mover as usize].is_piece(&king_square) {
                 king_moves.push( Move {
                     color: mover,
@@ -516,7 +516,7 @@ impl Move {
 
         
         for i in (0..(all_moves.len())).rev() {
-            let mut board_state = board.clone();
+            let mut board_state = *board;
             board_state.process_move(&all_moves[i]);
             if board_state.is_attacked(&board_state.get_king(&mover), mover) {
                 all_moves.remove(i);

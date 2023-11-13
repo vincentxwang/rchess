@@ -19,11 +19,11 @@ mod tests {
     #[test]
     fn test_is_piece() {
         let test1: Bitboard = Bitboard::empty();
-        assert_eq!(false, test1.is_piece(&Square::A2));
-        assert_eq!(false, test1.is_piece(&Square::G6));
+        assert!(!test1.is_piece(&Square::A2));
+        assert!(!test1.is_piece(&Square::G6));
         let test2: Bitboard = Bitboard::new(KNIGHT_START);
-        assert_eq!(true, test2.is_piece(&Square::B1));
-        assert_eq!(false, test2.is_piece(&Square::A2));
+        assert!(test2.is_piece(&Square::B1));
+        assert!(!test2.is_piece(&Square::A2));
     }
 
     #[test]

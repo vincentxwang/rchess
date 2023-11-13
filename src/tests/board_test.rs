@@ -27,18 +27,18 @@ mod tests {
     #[test]
     fn test_is_attacked() {
         let test1 = Board::from_fen("r3kbnr/1bp2ppp/p1n1p3/qp4B1/3P4/1BN2N2/PPP2PPP/R2QK2R b KQkq - 0 1").unwrap();
-        assert_eq!(test1.is_attacked(&Square::D8, Color::Black), true);
-        assert_eq!(test1.is_attacked(&Square::E8, Color::Black), false);
-        assert_eq!(test1.is_attacked(&Square::D7, Color::Black), false);
-        assert_eq!(test1.is_attacked(&Square::G8, Color::Black), false);
-        assert_eq!(test1.is_attacked(&Square::F7, Color::Black), false);
-        assert_eq!(test1.is_attacked(&Square::E6, Color::Black), true);
+        assert!(test1.is_attacked(&Square::D8, Color::Black));
+        assert!(!test1.is_attacked(&Square::E8, Color::Black));
+        assert!(!test1.is_attacked(&Square::D7, Color::Black));
+        assert!(!test1.is_attacked(&Square::G8, Color::Black));
+        assert!(!test1.is_attacked(&Square::F7, Color::Black));
+        assert!(test1.is_attacked(&Square::E6, Color::Black));
         let test2 = Board::from_fen("8/3k4/4pbn1/p2Pp1BP/pP1P4/2N3q1/K7/6R1 w - - 0 1").unwrap();
-        assert_eq!(test2.is_attacked(&Square::A2, Color::White), false);
-        assert_eq!(test2.is_attacked(&Square::A8, Color::White), false);
-        assert_eq!(test2.is_attacked(&Square::G1, Color::White), true);
-        assert_eq!(test2.is_attacked(&Square::D4, Color::White), true);
-        assert_eq!(test2.is_attacked(&Square::C3, Color::White), true);
+        assert!(!test2.is_attacked(&Square::A2, Color::White));
+        assert!(!test2.is_attacked(&Square::A8, Color::White));
+        assert!(test2.is_attacked(&Square::G1, Color::White));
+        assert!(test2.is_attacked(&Square::D4, Color::White));
+        assert!(test2.is_attacked(&Square::C3, Color::White));
     }
     
     /* this should probably be done at some point...

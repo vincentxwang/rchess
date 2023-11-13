@@ -113,14 +113,14 @@ impl Bitboard {
                     print!("0 ");
                 }
             }
-            println!("");
+            println!();
         }
         println!("----------- End of Print ------------");
     }
 
     // Returns a vector of squares that a Bitboard represents.
     pub fn get_squares(&self) -> Vec<Square> {
-        let mut bitboard = self.clone();
+        let mut bitboard = *self;
         let mut squares = Vec::new();
         while bitboard.0 != 0 {
             squares.push(bitboard.find_lsb());

@@ -30,7 +30,7 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
     if player == Color::White {
         let mut max_eval = Score(-30001);
         for move_candidate in all_moves {
-            let mut new_board = node.clone();
+            let mut new_board = *node;
             new_board.process_move(&move_candidate);
             let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::Black);
             max_eval = std::cmp::max(max_eval, eval);
@@ -40,11 +40,11 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
                 break;
             }
         }
-        return max_eval;
+        max_eval
     } else {
         let mut min_eval = Score(30001);
         for move_candidate in all_moves {
-            let mut new_board = node.clone();
+            let mut new_board = *node;
             new_board.process_move(&move_candidate);
             let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::White);
             min_eval = std::cmp::min(min_eval, eval);
@@ -53,7 +53,7 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
                 break;
             }
         }
-        return min_eval;       
+        min_eval
     }
 }
 
@@ -65,8 +65,8 @@ pub fn root_alphabeta(board: &Board, depth: usize) -> Move {
         Color::Black => Score(30001),
     };
 
-    for candidate_move in Move::generate_legal_moves(&board) {
-        let mut new_board = board.clone();
+    for candidate_move in Move::generate_legal_moves(board) {
+        let mut new_board = *board;
         new_board.process_move(&candidate_move);
         let new_eval = alphabeta(
             &new_board,

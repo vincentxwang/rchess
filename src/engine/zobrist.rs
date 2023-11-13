@@ -28,7 +28,7 @@ impl Zobrist {
         for _i in 0..2 {
             for _j in 0..6 {
                 for _k in 0..64 {
-                    write!(output, "{}\n", get_random_u64());
+                    writeln!(output, "{}", get_random_u64());
                 }
             }
         }
