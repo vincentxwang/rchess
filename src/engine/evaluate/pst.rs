@@ -98,11 +98,9 @@ pub fn reverse(pst: [i16; 64]) -> Vec<i16> {
 }
 
 pub fn get_pst_eval(color: Color, sq: &Square, piece: Piece) -> Score{
-    let score_val;
-    if color == Color::White {
-        score_val = WHITE_PST[piece as usize][*sq as usize];
-    } else {
-        score_val = BLACK_PST[piece as usize][*sq as usize];
-    }
+    let score_val = match color {
+        Color::White => WHITE_PST[piece as usize][*sq as usize],
+        Color::Black => BLACK_PST[piece as usize][*sq as usize],
+    };
     Score(score_val)
 }

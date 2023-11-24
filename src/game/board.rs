@@ -266,6 +266,7 @@ impl Board {
         panic!("something went wrong with get_piece. particularly a piece was detected in sides but not in pieces. bad.")
     }
 
+    // Prints a representation of the board in terminal.
     pub fn print_board(&self) {
         println!("--------- Printing Board ----------");
         for rank in (0..8).rev() {
@@ -320,7 +321,7 @@ impl Board {
         }
     }
 
-    // Checks if a square is attacked. Very naive. Possibly fails.
+    // Checks if a square is attacked. Very naive.
     pub fn is_attacked(&self, sq: &Square, color: Color) -> bool {
         let mover = color;
         let not_mover = Color::not(mover);
@@ -443,6 +444,7 @@ impl Board {
         false
     }
 
+    // Uses a move to update the Zobrist hash.
     pub fn update_zobrist_hash(&mut self, move_played: &Move) {
         let moved_piece = self.get_piece(&move_played.origin).unwrap();
         let captured_piece = self.get_piece(&move_played.destination);
@@ -456,6 +458,7 @@ impl Board {
         }
     }
 
+    // Progresses the state of the game by a half-move.
     pub fn process_move(&mut self, half_move: &Move) {
         if half_move.color != self.meta.player {
             panic!("move color disagrees with board player color!")

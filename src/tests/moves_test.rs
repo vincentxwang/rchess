@@ -119,7 +119,7 @@ mod tests {
         let board5_3 = step_depth(board5_2);
         assert_eq!(board5_3.len(), 62379);
         let board5_4 = step_depth(board5_3);
-        assert_eq!(board5_4.len(), 2103487);  
+        assert_eq!(board5_4.len(), 2103487)
         
     }
 

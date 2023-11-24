@@ -10,6 +10,7 @@ use crate::engine::evaluate::Score;
 use crate::{game::board::Board, core::structs::{Color, Square}};
 
 lazy_static! {
+    // ZOBRIST_TABLE contains pseudorandom numbers for every piece type + piece color on every square.
     pub static ref ZOBRIST_TABLE: [[[u64; 64]; 6]; 2] = Zobrist::get_zobrist_constants().unwrap();
     pub static ref BLACK_TO_MOVE: [u64; 1] = [13023143897365832559];
     pub static ref TRANSPOSITION_TABLE: Mutex<HashMap<Zobrist, Score>> = Mutex::new(HashMap::new());
@@ -56,6 +57,8 @@ impl Zobrist {
         Ok(table)
     }
 
+    // Finds the zobrist_hash of a board. This should only be used once in a game because it is easier to find the zobrist_hash
+    // by XOR'ing during the move.
     pub fn zobrist_hash(board: &Board) -> Zobrist {
         let mut hash: u64 = 0;
         if board.meta.player == Color::Black {
