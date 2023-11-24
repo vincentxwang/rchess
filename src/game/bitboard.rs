@@ -46,6 +46,7 @@ impl Bitboard {
         self.0 &= !(1 << *square as u8);
     }
 
+    // Sets a bit to one.
     pub fn set_one(&mut self, square: &Square) {
         self.0 |= 1 << *square as u8;
     }
@@ -86,13 +87,14 @@ impl Bitboard {
 
     // Toggles most significant 1 to a 0.
     pub fn toggle_lsb(&mut self) {
-        if self.0.leading_zeros() == 64 {
+        if self.0.trailing_zeros() == 64 {
             panic!("tried to toggle least significant bit, but bitboard is empty!")
         }
         self.toggle(&Square::from_int(self.0.trailing_zeros() as usize))       
     }
     
-    // find_lsb assumes that self is nonempty.
+    // Finds least significant bit (aka the bit that is the right most).
+    // find_lsb assumes that self is nonempty (aka all 0's).
     pub fn find_lsb(&self) -> Square {
         Square::from_int(self.0.trailing_zeros() as usize)
     }
