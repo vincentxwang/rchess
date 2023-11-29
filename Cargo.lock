@@ -3,6 +3,12 @@
 version = 3
 
 [[package]]
+name = "bencher"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7dfdb4953a096c551ce9ace855a604d702e6e62d77fac690575ae347571717f5"
+
+[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -71,6 +77,7 @@ dependencies = [
 name = "rchess"
 version = "0.1.0"
 dependencies = [
+ "bencher",
  "lazy_static",
  "rand",
 ]
