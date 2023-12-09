@@ -1,3 +1,5 @@
+//
+
 #![feature(test)]
 #[macro_use]
 extern crate lazy_static;
@@ -13,6 +15,46 @@ pub mod engine;
 use crate::game::movegen::moves::Move as Move;
 use crate::core::structs::Color as Color;
 use crate::engine::evaluate::Score;
+
+fn main() {
+
+    // User inputs engine (and player) color.
+    let engine_color = get_engine_color();
+
+    // User inputs depth.
+    let depth = get_depth();
+
+    // Board initialization.
+    let mut game = Board::new();
+    game.print_board();
+
+    // Engine plays first, if White and on the first move.
+    if engine_color == Color::White && game.meta.full_moves == 1 {
+        process_engine_turn(&mut game, depth);
+    }
+
+    while Score::get_score(&game) != Score(30000) && Score::get_score(&game) != Score(-30000) {
+        process_player_turn(&mut game, depth);
+        process_engine_turn(&mut game, depth);
+    }
+
+}
+
+fn process_player_turn(game: &mut Board, depth: usize) {
+    println!("Play a move using long algebraic notation (e.g. 1.e4 is e2e4)!");
+    let mut player_move = String::new();
+    io::stdin().read_line(&mut player_move).unwrap();
+    let player_move = Move::from_uci(&game, &player_move);
+    game.process_move(&player_move);
+    game.print_board();
+}
+
+fn process_engine_turn(game: &mut Board, depth: usize) {
+    let play = root_alphabeta(&game, depth);
+    println!("engine plays: {:?}", play);
+    game.process_move(&play);
+    game.print_board();
+}
 
 fn get_engine_color() -> Color {
     println!("Pick a player color! Type '0' for White and '1' for Black.");
@@ -31,7 +73,7 @@ fn get_engine_color() -> Color {
             Err(e) => {
                 println!("Please input a valid number! Error: {}", e);
                 user_input.clear();
-            }       
+            }
         }
     }
 }
@@ -59,39 +101,4 @@ fn get_depth() -> usize {
     }
 }
 
-fn main() {
 
-    // User inputs engine (and player) color.
-    let engine_color = get_engine_color();
-
-    // User inputs depth.
-    let depth = get_depth();
-
-    // Board initialization.
-    let mut game = Board::new();
-
-    // Engine plays first, if White.
-    if engine_color == Color::White && game.meta.full_moves == 1 {
-        game.print_board();
-        let play = root_alphabeta(&game, depth);
-        println!("engine plays: {:?}", play);
-        game.process_move(&play);
-        game.print_board();
-    }
-
-    while Score::get_score(&game) != Score(30000) && Score::get_score(&game) != Score(-30000) {
-        println!("play a move!");
-        let mut player_move = String::new();
-        io::stdin().read_line(&mut player_move).unwrap();
-        let player_move = Move::from_uci(&game, &player_move);
-        game.process_move(&player_move);
-        game.print_board();
-
-        let play = root_alphabeta(&game, depth);
-        println!("engine plays: {:?}", play);
-        game.process_move(&play);
-        game.print_board();
-    }
-    
-
-}
