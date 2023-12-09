@@ -17,7 +17,6 @@ use crate::core::structs::Color as Color;
 use crate::engine::evaluate::Score;
 
 fn main() {
-
     // User inputs engine (and player) color.
     let engine_color = get_engine_color();
 
@@ -34,23 +33,22 @@ fn main() {
     }
 
     while Score::get_score(&game) != Score(30000) && Score::get_score(&game) != Score(-30000) {
-        process_player_turn(&mut game, depth);
+        process_player_turn(&mut game);
         process_engine_turn(&mut game, depth);
     }
-
 }
 
-fn process_player_turn(game: &mut Board, depth: usize) {
+fn process_player_turn(game: &mut Board) {
     println!("Play a move using long algebraic notation (e.g. 1.e4 is e2e4)!");
     let mut player_move = String::new();
     io::stdin().read_line(&mut player_move).unwrap();
-    let player_move = Move::from_uci(&game, &player_move);
+    let player_move = Move::from_uci(game, &player_move);
     game.process_move(&player_move);
     game.print_board();
 }
 
 fn process_engine_turn(game: &mut Board, depth: usize) {
-    let play = root_alphabeta(&game, depth);
+    let play = root_alphabeta(game, depth);
     println!("engine plays: {:?}", play);
     game.process_move(&play);
     game.print_board();

@@ -28,13 +28,12 @@ impl Zobrist {
         for _i in 0..2 {
             for _j in 0..6 {
                 for _k in 0..64 {
-                    writeln!(output, "{}", get_random_u64());
+                    writeln!(output, "{}", get_random_u64()).expect("Unable to write to zobrist_constants.txt!");
                 }
             }
         }
         Ok(())
     }
-
 
     // Reads constants from zobrist_constants.txt
     fn get_zobrist_constants() -> Result<[[[u64; 64]; 6]; 2], std::io::Error> {
@@ -47,10 +46,10 @@ impl Zobrist {
 
         let mut lines = br.lines();
         
-        for i in 0..2 {
-            for j in 0..6 {
-                for k in 0..64 {
-                    table[i][j][k] = lines.next().unwrap().unwrap().parse::<u64>().unwrap();
+        for i in &mut table {
+            for j in i {
+                for k in j {
+                    *k = lines.next().unwrap().unwrap().parse::<u64>().unwrap();
                 }
             }
         }
@@ -72,7 +71,6 @@ impl Zobrist {
         }
         Zobrist(hash)
     }
-
 }
 
 fn get_random_u64() -> u64 {

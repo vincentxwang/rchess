@@ -402,7 +402,7 @@ impl Board {
         } 
 
         // Check for bishop.
-        let possible_bishop_threats = vec![
+        let possible_bishop_threats = [
             self.get_furthest_piece_along_ray(sq, Direction::Northwest, color),
             self.get_furthest_piece_along_ray(sq, Direction::Northeast, color),
             self.get_furthest_piece_along_ray(sq, Direction::Southeast, color),
@@ -414,7 +414,7 @@ impl Board {
         }
 
         // Check for rook.
-        let possible_rook_threats = vec![
+        let possible_rook_threats = [
             self.get_furthest_piece_along_ray(sq, Direction::North, color),
             self.get_furthest_piece_along_ray(sq, Direction::East, color),
             self.get_furthest_piece_along_ray(sq, Direction::South, color),
@@ -426,7 +426,7 @@ impl Board {
         }
         
         // Check for queen.
-        let possible_queen_threats = vec![
+        let possible_queen_threats = [
             self.get_furthest_piece_along_ray(sq, Direction::North, color),
             self.get_furthest_piece_along_ray(sq, Direction::East, color),
             self.get_furthest_piece_along_ray(sq, Direction::South, color),

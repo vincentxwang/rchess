@@ -20,8 +20,8 @@ fn compute_north_ray_attacks() -> [Bitboard; 64] {
     // NORTH_RAY_ATTACKS at a1, then we shift 1 left to get all the others.
     let mut nort: u64 = 0b_00000001_00000001_00000001_00000001_00000001_00000001_00000001_00000000;
     let mut attacks = [Bitboard::empty(); 64];
-    for sq in 0..64 {
-        attacks[sq] = Bitboard::new(nort);
+    for sq in &mut attacks {
+        *sq = Bitboard::new(nort);
         nort <<= 1;
     };
     attacks
