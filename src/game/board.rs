@@ -31,6 +31,12 @@ pub struct BoardData {
     pub zobrist: Zobrist,
 }
 
+impl Default for Board {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Board {
     // Constructs a new game.
     pub fn new() -> Board {

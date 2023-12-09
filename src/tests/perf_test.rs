@@ -42,7 +42,7 @@ mod tests {
     fn test_movesearch(b: &mut Bencher) {
         let new = Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").unwrap();
         b.iter(|| {
-            let new_eval = crate::engine::alphabeta(
+            let _new_eval = crate::engine::alphabeta(
                 &new,
                 4, 
                 Score(-30001), 
