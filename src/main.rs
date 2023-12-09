@@ -48,7 +48,7 @@ fn process_player_turn(game: &mut Board) {
 }
 
 fn process_engine_turn(game: &mut Board, depth: usize) {
-    let play = root_alphabeta(game, depth);
+    let play = root_alphabeta(game, depth).0.unwrap();
     println!("engine plays: {:?}", play);
     game.process_move(&play);
     game.print_board();

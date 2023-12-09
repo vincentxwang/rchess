@@ -56,12 +56,11 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
     }
 }
 
-pub fn root_alphabeta(board: &Board, depth: usize) -> Move {
-    let mut current_best_move: Option<Move> = None;
+pub fn root_alphabeta(board: &Board, depth: usize) -> (Option<Move>, Score) {
 
-    let mut current_best_eval = match board.meta.player {
-        Color::White => Score(-30001),
-        Color::Black => Score(30001),
+    let mut current_best_eval: (Option<Move>, Score) = match board.meta.player {
+        Color::White => (None, Score(-30001)),
+        Color::Black => (None, Score(30001)),
     };
 
     for candidate_move in Move::generate_legal_moves(board) {
@@ -69,24 +68,25 @@ pub fn root_alphabeta(board: &Board, depth: usize) -> Move {
         new_board.process_move(&candidate_move);
         let new_eval = alphabeta(
             &new_board,
-            depth - 1, 
-            Score(-30001), 
+            depth - 1,
+            Score(-30001),
             Score(30001),
             Color::not(board.meta.player));
 
         TRANSPOSITION_TABLE.lock().unwrap().insert(new_board.meta.zobrist, new_eval);
 
-        if board.meta.player == Color::White && 
-            new_eval >= current_best_eval {
-                    current_best_move = Some(candidate_move);
-                    current_best_eval = new_eval;
-        }
-        if board.meta.player == Color::Black && 
-            new_eval <= current_best_eval {
-                    current_best_move = Some(candidate_move);
-                    current_best_eval = new_eval;
-        }     
+        match board.meta.player {
+            Color::White => {
+                if new_eval >= current_best_eval.1 {
+                    current_best_eval = (Some(candidate_move), new_eval);
+                }
+            },
+            Color::Black => {
+                if new_eval <= current_best_eval.1 {
+                    current_best_eval = (Some(candidate_move), new_eval);
+                }
+            }
+        } 
     }
-    println!("{:?}", current_best_eval);
-    current_best_move.unwrap()
+    current_best_eval
 }

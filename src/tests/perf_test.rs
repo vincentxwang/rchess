@@ -4,6 +4,8 @@ extern crate test;
 mod tests {
     use super::*;
     use test::Bencher;
+    use crate::core::structs::Color;
+    use crate::engine::evaluate::Score;
     use crate::game::board::Board;
     use crate::game::movegen::moves::Move as Move;
 
@@ -35,4 +37,19 @@ mod tests {
         assert_eq!(board2_3.len(), 8902);
         })
     }
+    // The test below tests for performance of move search.
+    #[bench]
+    fn test_movesearch(b: &mut Bencher) {
+        let new = Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").unwrap();
+        b.iter(|| {
+            let new_eval = crate::engine::alphabeta(
+                &new,
+                4, 
+                Score(-30001), 
+                Score(30001),
+                Color::not(new.meta.player));
+        })
+
+    }
 }
+
