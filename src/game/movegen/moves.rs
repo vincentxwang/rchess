@@ -456,6 +456,7 @@ impl Move {
             kingside_index = 2;
             queenside_index = 3;
         }
+
         if board.meta.castle_rights[kingside_index] 
             && !board.is_attacked(&king_square, mover) 
             && !board.is_attacked(&Square::from_int(king_square as usize + 1), mover)
@@ -490,9 +491,10 @@ impl Move {
             })
         } 
         castle_moves
-}
+    }
 
-    pub fn generate_legal_moves(board: &Board) -> Vec<Move> {
+    // generate_all_moves() will likely contain moves that are illegal.
+    pub fn generate_all_moves(board: &Board) -> Vec<Move> {
         let mut all_moves = Vec::new();
         let mover = board.meta.player;
 
@@ -500,7 +502,7 @@ impl Move {
             let sq = Square::from_int(i);
             let piece = board.get_piece(&sq);
             if piece.is_some() && piece.unwrap().1 == mover {
-                let mut moves = match piece.unwrap().0 {
+                let mut piece_moves = match piece.unwrap().0 {
                     Piece::Pawn => Move::generate_all_pawn_moves(board, &sq),
                     Piece::Knight => Move::generate_all_knight_moves(board, &sq),
                     Piece::Bishop => Move::generate_all_bishop_moves(board, &sq, mover),
@@ -508,24 +510,28 @@ impl Move {
                     Piece::Queen => Move::generate_all_queen_moves(board, &sq, mover),
                     Piece::King => Move::generate_all_king_moves(board, &sq),
                 };
-                all_moves.append(&mut moves);
+                all_moves.append(&mut piece_moves);
             }
         }
-
         all_moves.append(&mut Move::generate_castles(board));
-
-        
-        for i in (0..(all_moves.len())).rev() {
-            let mut board_state = *board;
-            board_state.process_move(&all_moves[i]);
-            if board_state.is_attacked(&board_state.get_king(&mover), mover) {
-                all_moves.remove(i);
-            }
-        }
 
         all_moves
     }
-  
+
+    pub fn generate_legal_moves(board: &Board) -> Vec<Move> {
+        let mover = board.meta.player;
+        let mut moves = Self::generate_all_moves(board);
+
+        for i in (0..(moves.len())).rev() {
+            let mut board_state = *board;
+            board_state.process_move(&moves[i]);
+            if board_state.is_attacked(&board_state.get_king(&mover), mover) {
+                moves.remove(i);
+            }
+        }
+        moves
+    }
+
     pub fn generate_random_move(board: &Board) -> Move {
         let legal_moves = Move::generate_legal_moves(board);
         let rand = rand::random::<u64>() % legal_moves.len() as u64;
