@@ -4,8 +4,6 @@ rchess is a Rust-based chess engine that runs in the command line started as a h
 
 # Features
 
----
-
 - Move generation
 - Alpha-beta search
 - Transcription tables and Zobrist hashing
