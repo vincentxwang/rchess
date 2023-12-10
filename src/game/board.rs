@@ -31,6 +31,12 @@ pub struct BoardData {
     pub zobrist: Zobrist,
 }
 
+impl Default for Board {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Board {
     // Constructs a new game.
     pub fn new() -> Board {
@@ -458,11 +464,13 @@ impl Board {
         }
     }
 
-    // Progresses the state of the game by a half-move.
-    pub fn process_move(&mut self, half_move: &Move) {
+    // Progresses the state of the game by a half-move. Returns Ok(()) if move is legal, and Err(()) if move is not legal.
+    pub fn process_move(&mut self, half_move: &Move) -> Result<(), ()> {
         if half_move.color != self.meta.player {
             panic!("move color disagrees with board player color!")
         }
+
+        let board_copy = *self;
 
         // Process Zobrist hashing.
         self.update_zobrist_hash(half_move);
@@ -567,7 +575,13 @@ impl Board {
         } else {
             self.meta.en_passant_square = None;
         }
-        
-    }
 
+        // Legality check -- is the king in check after the player's move?
+        if self.is_attacked(&self.get_king(&mover), mover) {
+            *self = board_copy;
+            Err(())
+        } else {
+            Ok(())
+        }
+    }
 }

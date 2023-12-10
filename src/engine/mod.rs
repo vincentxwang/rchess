@@ -1,3 +1,5 @@
+use rand::seq::SliceRandom;
+
 use crate::{game::{board::Board, movegen::moves::Move}, 
     core::structs::Color};
 use crate::engine::evaluate::Score;
@@ -7,86 +9,93 @@ pub mod evaluate;
 pub mod zobrist;
 
 pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, player: Color) -> Score {
-    let all_moves = Move::generate_legal_moves(node);
+    let mut all_moves = Move::generate_all_moves(node);
 
-    if all_moves.is_empty() {
-        if node.meta.player == Color::White {
-            return Score(-30000);
-        } else {
-            return Score(30000);
-        }
-    }
-
+    // all_moves has very similar moves right next to each other. We expect these to have somewhat similar results
+    // so, we shuffle them so the alphabeta algorithm can prune off more. Although, this only really resulted in a
+    // ~9% improvement in search performance.
+    let mut rng = rand::thread_rng();
+    all_moves.shuffle(&mut rng);
+    
     if depth == 0 {
         return Score::get_score(node);
     } 
 
     if TRANSPOSITION_TABLE.lock().unwrap().contains_key(&node.meta.zobrist) {
         return TRANSPOSITION_TABLE.lock().unwrap()[&node.meta.zobrist];
-    }
+    }   
     
     // if player is maximizing!
-    if player == Color::White {
-        let mut max_eval = Score(-30001);
-        for move_candidate in all_moves {
-            let mut new_board = *node;
-            new_board.process_move(&move_candidate);
-            let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::Black);
-            max_eval = std::cmp::max(max_eval, eval);
-            alpha = std::cmp::max(eval, alpha);
-            
-            if beta <= alpha {
-                break;
+    match player {
+        Color::White => {
+            let mut max_eval = Score(-30001);
+            for move_candidate in all_moves {
+                let mut new_board = *node;
+                if new_board.process_move(&move_candidate).is_err() {
+                    continue;
+                }
+                let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::Black);
+                max_eval = std::cmp::max(max_eval, eval);
+                alpha = std::cmp::max(eval, alpha);
+                
+                if beta <= alpha {
+                    break;
+                }
             }
-        }
-        max_eval
-    } else {
-        let mut min_eval = Score(30001);
-        for move_candidate in all_moves {
-            let mut new_board = *node;
-            new_board.process_move(&move_candidate);
-            let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::White);
-            min_eval = std::cmp::min(min_eval, eval);
-            beta = std::cmp::min(beta, eval);
-            if beta <= alpha {
-                break;
+            max_eval
+        }, 
+        Color::Black => {
+            let mut min_eval = Score(30001);
+            for move_candidate in all_moves {
+                let mut new_board = *node;
+                if new_board.process_move(&move_candidate).is_err() {
+                    continue;
+                }
+                let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::White);
+                min_eval = std::cmp::min(min_eval, eval);
+                beta = std::cmp::min(beta, eval);
+                if beta <= alpha {
+                    break;
+                }
             }
+            min_eval
         }
-        min_eval
     }
 }
 
-pub fn root_alphabeta(board: &Board, depth: usize) -> Move {
-    let mut current_best_move: Option<Move> = None;
+pub fn root_alphabeta(board: &Board, depth: usize) -> (Option<Move>, Score) {
 
-    let mut current_best_eval = match board.meta.player {
-        Color::White => Score(-30001),
-        Color::Black => Score(30001),
+    let mut current_best_eval: (Option<Move>, Score) = match board.meta.player {
+        Color::White => (None, Score(-30001)),
+        Color::Black => (None, Score(30001)),
     };
 
-    for candidate_move in Move::generate_legal_moves(board) {
+    for candidate_move in Move::generate_all_moves(board) {
         let mut new_board = *board;
-        new_board.process_move(&candidate_move);
+        if new_board.process_move(&candidate_move).is_err() {
+            continue;
+        }
         let new_eval = alphabeta(
             &new_board,
-            depth - 1, 
-            Score(-30001), 
+            depth - 1,
+            Score(-30001),
             Score(30001),
             Color::not(board.meta.player));
 
         TRANSPOSITION_TABLE.lock().unwrap().insert(new_board.meta.zobrist, new_eval);
 
-        if board.meta.player == Color::White && 
-            new_eval >= current_best_eval {
-                    current_best_move = Some(candidate_move);
-                    current_best_eval = new_eval;
+        match board.meta.player {
+            Color::White => {
+                if new_eval >= current_best_eval.1 {
+                    current_best_eval = (Some(candidate_move), new_eval);
+                }
+            },
+            Color::Black => {
+                if new_eval <= current_best_eval.1 {
+                    current_best_eval = (Some(candidate_move), new_eval);
+                }
+            }
         }
-        if board.meta.player == Color::Black && 
-            new_eval <= current_best_eval {
-                    current_best_move = Some(candidate_move);
-                    current_best_eval = new_eval;
-        }     
     }
-    println!("{:?}", current_best_eval);
-    current_best_move.unwrap()
+    current_best_eval
 }
