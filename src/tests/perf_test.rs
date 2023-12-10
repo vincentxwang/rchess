@@ -13,7 +13,7 @@ mod tests {
     fn step_depth(boards: &Vec<Board>) -> Vec<Board>{
         let mut new_boards = Vec::new();
         for board in boards {
-            let moves = Move::generate_legal_moves(&board);
+            let moves = Move::generate_legal_moves(board);
             for turn in moves {
                 let mut new_board = *board;
                 new_board.process_move(&turn).expect("generate_legal_moves() generated process_move() thinks is illegal. :/");

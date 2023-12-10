@@ -470,7 +470,7 @@ impl Board {
             panic!("move color disagrees with board player color!")
         }
 
-        let board_copy = self.clone();
+        let board_copy = *self;
 
         // Process Zobrist hashing.
         self.update_zobrist_hash(half_move);
