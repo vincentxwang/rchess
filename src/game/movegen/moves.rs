@@ -519,13 +519,11 @@ impl Move {
     }
 
     pub fn generate_legal_moves(board: &Board) -> Vec<Move> {
-        let mover = board.meta.player;
         let mut moves = Self::generate_all_moves(board);
 
         for i in (0..(moves.len())).rev() {
             let mut board_state = *board;
-            board_state.process_move(&moves[i]);
-            if board_state.is_attacked(&board_state.get_king(&mover), mover) {
+            if board_state.process_move(&moves[i]).is_err() {
                 moves.remove(i);
             }
         }

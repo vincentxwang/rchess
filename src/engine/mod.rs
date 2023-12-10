@@ -7,15 +7,7 @@ pub mod evaluate;
 pub mod zobrist;
 
 pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, player: Color) -> Score {
-    let all_moves = Move::generate_legal_moves(node);
-
-    if all_moves.is_empty() {
-        if node.meta.player == Color::White {
-            return Score(-30000);
-        } else {
-            return Score(30000);
-        }
-    }
+    let all_moves = Move::generate_all_moves(node);
 
     if depth == 0 {
         return Score::get_score(node);
@@ -26,33 +18,40 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
     }
     
     // if player is maximizing!
-    if player == Color::White {
-        let mut max_eval = Score(-30001);
-        for move_candidate in all_moves {
-            let mut new_board = *node;
-            new_board.process_move(&move_candidate);
-            let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::Black);
-            max_eval = std::cmp::max(max_eval, eval);
-            alpha = std::cmp::max(eval, alpha);
-            
-            if beta <= alpha {
-                break;
+    match player {
+        Color::White => {
+            let mut max_eval = Score(-30001);
+            for move_candidate in all_moves {
+                let mut new_board = *node;
+                if new_board.process_move(&move_candidate).is_err() {
+                    continue;
+                }
+                let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::Black);
+                max_eval = std::cmp::max(max_eval, eval);
+                alpha = std::cmp::max(eval, alpha);
+                
+                if beta <= alpha {
+                    break;
+                }
             }
-        }
-        max_eval
-    } else {
-        let mut min_eval = Score(30001);
-        for move_candidate in all_moves {
-            let mut new_board = *node;
-            new_board.process_move(&move_candidate);
-            let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::White);
-            min_eval = std::cmp::min(min_eval, eval);
-            beta = std::cmp::min(beta, eval);
-            if beta <= alpha {
-                break;
+            max_eval
+        }, 
+        Color::Black => {
+            let mut min_eval = Score(30001);
+            for move_candidate in all_moves {
+                let mut new_board = *node;
+                if new_board.process_move(&move_candidate).is_err() {
+                    continue;
+                }
+                let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::White);
+                min_eval = std::cmp::min(min_eval, eval);
+                beta = std::cmp::min(beta, eval);
+                if beta <= alpha {
+                    break;
+                }
             }
+            min_eval
         }
-        min_eval
     }
 }
 
@@ -63,9 +62,11 @@ pub fn root_alphabeta(board: &Board, depth: usize) -> (Option<Move>, Score) {
         Color::Black => (None, Score(30001)),
     };
 
-    for candidate_move in Move::generate_legal_moves(board) {
+    for candidate_move in Move::generate_all_moves(board) {
         let mut new_board = *board;
-        new_board.process_move(&candidate_move);
+        if new_board.process_move(&candidate_move).is_err() {
+            continue;
+        }
         let new_eval = alphabeta(
             &new_board,
             depth - 1,
@@ -86,7 +87,7 @@ pub fn root_alphabeta(board: &Board, depth: usize) -> (Option<Move>, Score) {
                     current_best_eval = (Some(candidate_move), new_eval);
                 }
             }
-        } 
+        }
     }
     current_best_eval
 }

@@ -15,7 +15,7 @@ mod tests {
             let moves = Move::generate_legal_moves(&board);
             for turn in moves {
                 let mut new_board = board;
-                new_board.process_move(&turn);
+                new_board.process_move(&turn).expect("generate_legal_moves() generated process_move() thinks is illegal. :/");
                 new_boards.push(new_board);             
             }
         }
@@ -44,12 +44,11 @@ mod tests {
         b.iter(|| {
             let _new_eval = crate::engine::alphabeta(
                 &new,
-                4, 
+                4,
                 Score(-30001), 
                 Score(30001),
                 Color::not(new.meta.player));
         })
-
     }
 }
 
