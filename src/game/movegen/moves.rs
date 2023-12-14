@@ -1,4 +1,6 @@
 use crate::core::structs::Direction;
+use crate::engine::evaluate::Score;
+use crate::engine::evaluate::material::mvv_lva;
 use crate::game::piece::Piece as Piece; 
 use crate::game::bitboard::Bitboard as Bitboard;
 use crate::core::structs::Square as Square;
@@ -493,10 +495,13 @@ impl Move {
         castle_moves
     }
 
-    // generate_all_moves() will likely contain moves that are illegal.
+    // generate_all_moves() will likely contain moves that are illegal. It will also order captures first by MVV - LVA.
     pub fn generate_all_moves(board: &Board) -> Vec<Move> {
         let mut all_moves = Vec::new();
         let mover = board.meta.player;
+
+        // Castling is added before the others because castling is usually a good move.
+        all_moves.append(&mut Move::generate_castles(board));
 
         for i in 0..64 {
             let sq = Square::from_int(i);
@@ -513,7 +518,16 @@ impl Move {
                 all_moves.append(&mut piece_moves);
             }
         }
-        all_moves.append(&mut Move::generate_castles(board));
+
+        all_moves.sort_by(|x, y| {
+            let mut board_x = board.clone();
+            board_x.process_move(x);
+            let score_x = Score::get_score(&board_x);
+            let mut board_y= board.clone();
+            board_y.process_move(y);
+            let score_y = Score::get_score(&board_y);
+            score_y.cmp(&score_x)
+        }); 
 
         all_moves
     }

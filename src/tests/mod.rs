@@ -4,3 +4,4 @@ pub mod board_test;
 pub mod moves_test;
 pub mod magic_test;
 pub mod perf_test;
+pub mod material_test;

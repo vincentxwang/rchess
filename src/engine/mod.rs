@@ -9,13 +9,7 @@ pub mod evaluate;
 pub mod zobrist;
 
 pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, player: Color) -> Score {
-    let mut all_moves = Move::generate_all_moves(node);
-
-    // all_moves has very similar moves right next to each other. We expect these to have somewhat similar results
-    // so, we shuffle them so the alphabeta algorithm can prune off more. Although, this only really resulted in a
-    // ~9% improvement in search performance.
-    let mut rng = rand::thread_rng();
-    all_moves.shuffle(&mut rng);
+    let all_moves = Move::generate_all_moves(node);
     
     if depth == 0 {
         return Score::get_score(node);
