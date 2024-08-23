@@ -6,15 +6,15 @@ use crate::engine::zobrist::*;
 pub mod evaluate;
 pub mod zobrist;
 
+// Recursively performs an alpha-beta prune.
+// alpha -> best (maximum) value white can guarantee
+// beta -> best (minimum) value black can guarantee
 pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, player: Color) -> Score {
     let all_moves = Move::generate_legal_moves(node);
 
+    // Check if is "checkmate" (Draws not implemented :( )
     if all_moves.is_empty() {
-        if node.meta.player == Color::White {
-            return Score(-30000);
-        } else {
-            return Score(30000);
-        }
+        return if node.meta.player == Color::White {Score(-30000)} else {Score(30000)};
     }
 
     if depth == 0 {
@@ -25,34 +25,42 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
         return TRANSPOSITION_TABLE.lock().unwrap()[&node.meta.zobrist];
     }
     
-    // if player is maximizing!
+    // White seeks to maximize the evaluation, while black seeks to minimize it.
     if player == Color::White {
-        let mut max_eval = Score(-30001);
+        // Holds maximum evaluation.
+        let mut eval = Score(-30001);
         for move_candidate in all_moves {
+
+            // Creates new board. Pretty inefficient. TODO: write undo method
             let mut new_board = *node;
             new_board.process_move(&move_candidate);
-            let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::Black);
-            max_eval = std::cmp::max(max_eval, eval);
+            eval = std::cmp::max(
+                eval,
+                alphabeta(&new_board, depth - 1, alpha, beta, Color::Black));
+
+            // alpha = max score white can guarantee from this position
             alpha = std::cmp::max(eval, alpha);
             
-            if beta <= alpha {
+            // "prunes" the tree (stops search), because black would never choose this!
+            if beta <= eval {
                 break;
             }
         }
-        max_eval
+        eval
     } else {
-        let mut min_eval = Score(30001);
+        let mut eval = Score(30001);
         for move_candidate in all_moves {
             let mut new_board = *node;
             new_board.process_move(&move_candidate);
-            let eval = alphabeta(&new_board, depth - 1, alpha, beta, Color::White);
-            min_eval = std::cmp::min(min_eval, eval);
+            eval = std::cmp::min(
+                eval,
+                alphabeta(&new_board, depth - 1, alpha, beta, Color::White));
             beta = std::cmp::min(beta, eval);
-            if beta <= alpha {
+            if eval <= alpha {
                 break;
             }
         }
-        min_eval
+        eval
     }
 }
 
