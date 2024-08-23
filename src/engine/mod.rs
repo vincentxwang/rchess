@@ -1,5 +1,3 @@
-use rand::seq::SliceRandom;
-
 use crate::{game::{board::Board, movegen::moves::Move}, 
     core::structs::Color};
 use crate::engine::evaluate::Score;
@@ -33,9 +31,12 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
         let mut eval = Score(-30001);
         for move_candidate in all_moves {
 
-            // Creates new board. Pretty inefficient. TODO: write undo method
+            // Creates new board. TODO: write undo method
             let mut new_board = *node;
-            new_board.process_move(&move_candidate);
+
+            // process_move returns Result<(), ()>
+            let _ = new_board.process_move(&move_candidate);
+
             eval = std::cmp::max(
                 eval,
                 alphabeta(&new_board, depth - 1, alpha, beta, Color::Black));
@@ -53,7 +54,7 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
         let mut eval = Score(30001);
         for move_candidate in all_moves {
             let mut new_board = *node;
-            new_board.process_move(&move_candidate);
+            let _ = new_board.process_move(&move_candidate);
             eval = std::cmp::min(
                 eval,
                 alphabeta(&new_board, depth - 1, alpha, beta, Color::White));
