@@ -1,3 +1,5 @@
+use rand::seq::SliceRandom;
+
 use crate::{game::{board::Board, movegen::moves::Move}, 
     core::structs::Color};
 use crate::engine::evaluate::Score;
@@ -16,14 +18,14 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
     if all_moves.is_empty() {
         return if node.meta.player == Color::White {Score(-30000)} else {Score(30000)};
     }
-
+    
     if depth == 0 {
         return Score::get_score(node);
     } 
 
     if TRANSPOSITION_TABLE.lock().unwrap().contains_key(&node.meta.zobrist) {
         return TRANSPOSITION_TABLE.lock().unwrap()[&node.meta.zobrist];
-    }
+    }   
     
     // White seeks to maximize the evaluation, while black seeks to minimize it.
     if player == Color::White {
@@ -64,37 +66,39 @@ pub fn alphabeta(node: &Board, depth: usize, mut alpha: Score, mut beta: Score, 
     }
 }
 
-pub fn root_alphabeta(board: &Board, depth: usize) -> Move {
-    let mut current_best_move: Option<Move> = None;
+pub fn root_alphabeta(board: &Board, depth: usize) -> (Option<Move>, Score) {
 
-    let mut current_best_eval = match board.meta.player {
-        Color::White => Score(-30001),
-        Color::Black => Score(30001),
+    let mut current_best_eval: (Option<Move>, Score) = match board.meta.player {
+        Color::White => (None, Score(-30001)),
+        Color::Black => (None, Score(30001)),
     };
 
-    for candidate_move in Move::generate_legal_moves(board) {
+    for candidate_move in Move::generate_all_moves(board) {
         let mut new_board = *board;
-        new_board.process_move(&candidate_move);
+        if new_board.process_move(&candidate_move).is_err() {
+            continue;
+        }
         let new_eval = alphabeta(
             &new_board,
-            depth - 1, 
-            Score(-30001), 
+            depth - 1,
+            Score(-30001),
             Score(30001),
             Color::not(board.meta.player));
 
         TRANSPOSITION_TABLE.lock().unwrap().insert(new_board.meta.zobrist, new_eval);
 
-        if board.meta.player == Color::White && 
-            new_eval >= current_best_eval {
-                    current_best_move = Some(candidate_move);
-                    current_best_eval = new_eval;
+        match board.meta.player {
+            Color::White => {
+                if new_eval >= current_best_eval.1 {
+                    current_best_eval = (Some(candidate_move), new_eval);
+                }
+            },
+            Color::Black => {
+                if new_eval <= current_best_eval.1 {
+                    current_best_eval = (Some(candidate_move), new_eval);
+                }
+            }
         }
-        if board.meta.player == Color::Black && 
-            new_eval <= current_best_eval {
-                    current_best_move = Some(candidate_move);
-                    current_best_eval = new_eval;
-        }     
     }
-    println!("{:?}", current_best_eval);
-    current_best_move.unwrap()
+    current_best_eval
 }
